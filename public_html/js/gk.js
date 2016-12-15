@@ -37,7 +37,7 @@ function update() {
 }
 
 function updateRacers() {
-    $.when($.getJSON(jsonFile)).done(function (keysData) {
+    $.getJSON(jsonFile, function (keysData) {
         var maxRacers = 16;
         var players = [];
         for (i = 0; i < keysData.length; i++) {
@@ -85,11 +85,11 @@ function updateRacers() {
         });
         var d = $("#racersDiv");
         d.empty();
-        $.each(sorted, function (i, racer) {
+        $.each(sorted, function (i, player) {
             if (i % maxRacers == 0) {
                 d.append('<div style="float: left; width: 210px; display: none;">');
             }
-            d.children().last().append('<div><img src="' + getPrestigeImage(racer.prestige) + '" /> ' + racer.name + " - " + racer.keys + '<img style="height: 32px; width: 32px;" src="' + racer.choice + 'Racer.png" /></div>');
+            d.children().last().append('<div><img src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ' + player.name + " - " + player.keys + '<img style="height: 32px; width: 32px;" src="' + player.racer.image + '" alt="' + player.racer.name + '" /></div>');
         });
         if (d.children().length > 0) {
             $(d.children()[0]).fadeIn();
