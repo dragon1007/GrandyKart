@@ -12,24 +12,13 @@ var xDoc;
 function update() {
     $("#racersDiv").children().each(function (i, item) {
         if ($(item).is(":visible")) {
-            if ($("#racersDiv").children().length > i + 2) {
+            if ($("#racersDiv").children().length > i+1) {
                 $(item).fadeOut(function () {
-                    $($("#racersDiv").children()[i + 2]).fadeIn();
+                    $($("#racersDiv").children()[i + 1]).fadeIn();
                 });
-                if ($("#racersDiv").children().length > i + 1) {
-                    $($("#racersDiv").children()[i + 1]).fadeOut(function () {
-                        if ($("#racersDiv").children().length > i + 3) {
-                            $($("#racersDiv").children()[i + 3]).fadeIn();
-                        }
-                    });
-                }
-            } else {
-                if ($("#racersDiv").children().length > i + 1) {
-                    $(item).fadeOut();
-                    $($("#racersDiv").children()[i + 1]).fadeOut(updateRacers);
-                } else {
-                    $(item).fadeOut(updateRacers);
-                }
+            }
+            else {
+                $(item).fadeOut(updateRacers);
             }
             return false;
         }
@@ -39,7 +28,7 @@ function update() {
 function updateRacers() {
     $.get(jsonFile, function (data) {
         keysData = JSON.parse(data.slice(0,-1) + "]");
-        var maxRacers = 16;
+        var maxRacers = 15;
         var players = [];
         for (i = 0; i < keysData.length; i++) {
             var rn = racers[keysData[i].racer].name;
@@ -86,15 +75,12 @@ function updateRacers() {
         d.empty();
         $.each(sorted, function (i, player) {
             if (i % maxRacers == 0) {
-                d.append('<div style="float: left; width: 210px; display: none;">');
+                d.append('<div style="float: left; display: none;">');
             }
-            d.children().last().append('<div><img style="height: 32px; width: 32px;" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ' + player.name + " - " + player.keys + '<img style="height: 32px; width: 32px;" src="' + player.racer.image + '" alt="' + player.racer.name + '" /></div>');
+            d.children().last().append('<div>' + (i + 1) + '. <img style="height: 32px; width: 32px;" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ' + player.name + " - " + player.keys + '<img style="height: 32px; width: 32px;" src="' + player.racer.image + '" alt="' + player.racer.name + '" /></div>');
         });
         if (d.children().length > 0) {
             $(d.children()[0]).fadeIn();
-        }
-        if (d.children().length > 1) {
-            $(d.children()[1]).fadeIn();
         }
     });
 }
