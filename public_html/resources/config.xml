@@ -7,124 +7,70 @@ and open the template in the editor.
 
 
 <config>
-    <json>
-        C:/folder/file.json
-    </json>
+    <json>resources/testdata.json</json>
     <racers>
         <id>0</id>
-        <displayName>
-            Bowser
-        </displayName>
-        <image>
-            images/Bowser.png
-        </image>
+        <displayName>Bowser</displayName>
+        <image>images/Bowser.png</image>
     </racers>
     <racers>
         <id>1</id>
-        <displayName>
-            Wario
-        </displayName>
-        <image>
-            images/Wario.png
-        </image>
+        <displayName>Wario</displayName>
+        <image>images/Wario.png</image>
     </racers>
     <racers>
         <id>2</id>
-        <displayName>
-            D.K.
-        </displayName>
-        <image>
-            images/DK.png
-        </image>
+        <displayName>D.K.</displayName>
+        <image>images/DK.png</image>
     </racers>
     <racers>
         <id>3</id>
-        <displayName>
-            Yoshi
-        </displayName>
-        <image>
-            images/Yoshi.png
-        </image>
+        <displayName>Yoshi</displayName>
+        <image>images/Yoshi.png</image>
     </racers>
     <racers>
         <id>4</id>
-        <displayName>
-            Toad
-        </displayName>
-        <image>
-            images/Toad.png
-        </image>
+        <displayName>Toad</displayName>
+        <image>images/Toad.png</image>
     </racers>
     <racers>
         <id>5</id>
-        <displayName>
-            Peach
-        </displayName>
-        <image>
-            images/Peach.png
-        </image>
+        <displayName>Peach</displayName>
+        <image>images/Peach.png</image>
     </racers>
     <racers>
         <id>6</id>
-        <displayName>
-            Luigi
-        </displayName>
-        <image>
-            images/Luigi.png
-        </image>
+        <displayName>Luigi</displayName>
+        <image>images/Luigi.png</image>
     </racers>
     <racers>
         <id>7</id>
-        <displayName>
-            Mario
-        </displayName>
-        <image>
-            images/Mario.png
-        </image>
+        <displayName>Mario</displayName>
+        <image>images/Mario.png</image>
     </racers>
     <prestige>
         <level>0</level>
-        <displayName>
-            Mushroom
-        </displayName>
-        <image>
-            images/Mushroom.png
-        </image>
+        <displayName>Mushroom</displayName>
+        <image>images/Mushroom.png</image>
     </prestige>
     <prestige>
         <level>1</level>
-        <displayName>
-            Flower
-        </displayName>
-        <image>
-            images/Flower.png
-        </image>
+        <displayName>Flower</displayName>
+        <image>images/Flower.png</image>
     </prestige>
     <prestige>
         <level>2</level>
-        <displayName>
-            Leaf
-        </displayName>
-        <image>
-            images/Leaf.png
-        </image>
+        <displayName>Leaf</displayName>
+        <image>images/Leaf.png</image>
     </prestige>
     <prestige>
         <level>3</level>
-        <displayName>
-            Feather
-        </displayName>
-        <image>
-            images/Feather.png
-        </image>
+        <displayName>Feather</displayName>
+        <image>images/Feather.png</image>
     </prestige>  
     <prestige>
         <level>4</level>
-        <displayName>
-            Star
-        </displayName>
-        <image>
-            images/Star.png
-        </image>
+        <displayName>Star</displayName>
+        <image>images/Star.png</image>
     </prestige>  
 </config>
