@@ -37,7 +37,8 @@ function update() {
 }
 
 function updateRacers() {
-    $.getJSON(jsonFile, function (keysData) {
+    $.get(jsonFile, function (data) {
+        keysData = JSON.parse(data.slice(0,-1) + "]");
         var maxRacers = 16;
         var players = [];
         for (i = 0; i < keysData.length; i++) {
