@@ -42,3 +42,7 @@ img {
     display: none;
     width: 100%;
 }
+
+.racerImage {
+    float: right;
+}
