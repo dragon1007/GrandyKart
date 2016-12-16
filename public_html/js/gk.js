@@ -86,37 +86,21 @@ function updateRacers() {
 }
 $(document).ready(function () {
     loadConfig();
-    setTimeout(updateRacers, 2000);
+    setTimeout(updateRacers, 500);
     document.t = setInterval(update, 5000);
 });
 
 function loadConfig() {
-    $.get("resources/config.xml", function(xmlData) {
-    $xml = $($.parseXML(xmlData));
-    
-    jsonFile = $xml.find('json')[0].textContent;
-
+    $.getJSON("resources/config.json", function(configData) {
+    jsonFile = configData.jsonFile;
     racers = [];
     prestige = [];
 
-    $xml.find('racers').each(function() {
-      var id = $(this).find('id')[0].textContent;
-      var name = $(this).find('displayName')[0].textContent;
-      var image = $(this).find('image')[0].textContent;
-      racers[id] = {
-          "name": name,
-          "image": image
-      };
+    $.each(configData.racers, function(i, item) {
+      racers.push({"name": item.displayName, "image": item.image});
     });
-
-    $xml.find('prestige').each(function() {
-      var level = $(this).find('level')[0].textContent;
-      var name = $(this).find('displayName')[0].textContent;
-      var image = $(this).find('image')[0].textContent;
-        prestige[level] = {
-            "name": name,
-            "image": image
-        };
+    $.each(configData.prestige, function(i, item) {
+      prestige.push({"name": item.displayName, "image": item.image});
     });
   });
 }
