@@ -16,12 +16,11 @@ and open the template in the editor.
     font-family: 'Bebas Neue'; 
 }
 
-.playerDiv {
-    float: left;
-    display: none;
-    width: 100%;
+.numberDiv {
+  text-align: right;
+  width: 38px;
+  display: inline-block;
 }
-
 
 img {
     position: relative;
@@ -30,8 +29,8 @@ img {
     width: 38px;
 }
 
-.numberDiv {
-  text-align: right;
-  width: 38px;
-  display: inline-block;
+.playerDiv {
+    float: left;
+    display: none;
+    width: 100%;
 }

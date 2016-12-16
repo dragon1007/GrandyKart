@@ -9,6 +9,7 @@ var nameLength;
 var maxRacers;
 var racers;
 var prestige;
+var scrollSpeed;
 
 function update() {
     $("#racersDiv").children().each(function (i, item) {
@@ -51,24 +52,12 @@ function updateRacers() {
             });
         }
         var sorted = players.sort(function (a, b) {
-            if (a.prestige.level > b.prestige.level) {
-                return -1;
-            }
-            if (a.prestige.level < b.prestige.level) {
-                return 1;
-            }
-            if (a.keys > b.keys) {
-                return -1;
-            }
-            if (a.keys < b.keys) {
-                return 1;
-            }
-            if (a.name < b.name) {
-                return -1;
-            }
-            if (a.name > b.name) {
-                return 1;
-            }
+            if (a.prestige.level > b.prestige.level) { return -1; }
+            if (a.prestige.level < b.prestige.level) { return 1; }
+            if (a.keys > b.keys) { return -1; }
+            if (a.keys < b.keys) { return 1; }
+            if (a.name < b.name) { return -1; }
+            if (a.name > b.name) { return 1; }
             return 0;
         });
         var d = $("#racersDiv");
@@ -84,17 +73,13 @@ function updateRacers() {
         }
     });
 }
-$(document).ready(function () {
-    loadConfig();
-    setTimeout(updateRacers, 500);
-    document.t = setInterval(update, 5000);
-});
 
 function loadConfig() {
     $.getJSON("resources/config.json", function(configData) {
     jsonFile = configData.jsonFile;
     nameLength = configData.nameLength;
     maxRacers = configData.maxRacersPerPage;
+    scrollSpeed = configData.scrollSpeed;
     racers = [];
     prestige = [];
 
@@ -104,5 +89,12 @@ function loadConfig() {
     $.each(configData.prestige, function(i, item) {
       prestige.push({"name": item.displayName, "image": item.image});
     });
+
+    updateRacers();
+    document.t = setInterval(update, scrollSpeed * 1000);
   });
 }
+
+$(document).ready(function () {
+    loadConfig();
+});
