@@ -31,7 +31,12 @@ function update() {
                 });
             }
             else {
-                $(item).fadeOut(updateRacers);
+                if ($("#racersDiv").children().length > 1) {
+                    $(item).fadeOut(updateRacers);
+                }
+                else {
+                    updateRacers();
+                }
             }
             return false;
         }
@@ -71,8 +76,11 @@ function updateRacers() {
             } 
             d.children().last().append('<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> <img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ' + ((player.name.length > nameLength) ? (player.name.substring(0,nameLength - 2) + '...') : player.name) + " - " + player.keys + '</div>');
         });
-        if (d.children().length > 0) {
+        if (d.children().length > 1) {
             $(d.children()[0]).fadeIn();
+        }
+        else if (d.children().length == 1) {
+            $(d.children()[0]).show();
         }
     });
 }
