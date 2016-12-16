@@ -12,6 +12,16 @@ var racers;
 var prestige;
 var scrollSpeed;
 
+function sortPrestige(a, b) {
+            if (a.prestige.level > b.prestige.level) { return -1; }
+            if (a.prestige.level < b.prestige.level) { return 1; }
+            if (a.keys > b.keys) { return -1; }
+            if (a.keys < b.keys) { return 1; }
+            if (a.name < b.name) { return -1; }
+            if (a.name > b.name) { return 1; }
+            return 0;
+        }
+
 function update() {
     $("#racersDiv").children().each(function (i, item) {
         if ($(item).is(":visible")) {
@@ -52,15 +62,7 @@ function updateRacers() {
                 "keys": keysData[i].keys
             });
         }
-        var sorted = players.sort(function (a, b) {
-            if (a.prestige.level > b.prestige.level) { return -1; }
-            if (a.prestige.level < b.prestige.level) { return 1; }
-            if (a.keys > b.keys) { return -1; }
-            if (a.keys < b.keys) { return 1; }
-            if (a.name < b.name) { return -1; }
-            if (a.name > b.name) { return 1; }
-            return 0;
-        }).slice(0,maxPlayersTotal);
+        var sorted = players.sort(sortPrestige).slice(0,maxPlayersTotal);
         var d = $("#racersDiv");
         d.empty();
         $.each(sorted, function (i, player) {
