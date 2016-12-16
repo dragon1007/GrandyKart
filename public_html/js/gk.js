@@ -6,6 +6,7 @@
 
 var jsonFile;
 var nameLength;
+var maxRacers;
 var racers;
 var prestige;
 
@@ -28,7 +29,6 @@ function update() {
 function updateRacers() {
     $.get(jsonFile, function (data) {
         keysData = JSON.parse(data.slice(0,-1) + "]");
-        var maxRacers = 15;
         var players = [];
         for (i = 0; i < keysData.length; i++) {
             var rn = racers[keysData[i].racer].name;
@@ -94,6 +94,7 @@ function loadConfig() {
     $.getJSON("resources/config.json", function(configData) {
     jsonFile = configData.jsonFile;
     nameLength = configData.nameLength;
+    maxRacers = configData.maxRacersPerPage;
     racers = [];
     prestige = [];
 
