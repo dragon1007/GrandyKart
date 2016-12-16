@@ -1,7 +1,8 @@
 {
   "jsonFile": "resources/testdata.json",
   "nameLength": 14,
-  "maxRacersPerPage": 15,
+  "maxPlayersPerPage": 15,
+  "maxPlayersTotal": 30,
   "scrollSpeed": 5,
   "racers": [
     { "displayName": "Bowser", "image": "images/Bowser.png" },

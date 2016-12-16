@@ -6,7 +6,8 @@
 
 var jsonFile;
 var nameLength;
-var maxRacers;
+var maxPlayers;
+var maxPlayersTotal;
 var racers;
 var prestige;
 var scrollSpeed;
@@ -59,11 +60,11 @@ function updateRacers() {
             if (a.name < b.name) { return -1; }
             if (a.name > b.name) { return 1; }
             return 0;
-        });
+        }).slice(0,maxPlayersTotal);
         var d = $("#racersDiv");
         d.empty();
         $.each(sorted, function (i, player) {
-            if (i % maxRacers == 0) {
+            if (i % maxPlayers == 0) {
                 d.append('<div class="playerDiv">');
             } 
             d.children().last().append('<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> <img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ' + ((player.name.length > nameLength) ? (player.name.substring(0,nameLength - 2) + '...') : player.name) + " - " + player.keys + '</div>');
@@ -78,7 +79,8 @@ function loadConfig() {
     $.getJSON("resources/config.json", function(configData) {
     jsonFile = configData.jsonFile;
     nameLength = configData.nameLength;
-    maxRacers = configData.maxRacersPerPage;
+    maxPlayers = configData.maxPlayersPerPage;
+    maxPlayersTotal = configData.maxPlayersTotal;
     scrollSpeed = configData.scrollSpeed;
     racers = [];
     prestige = [];
