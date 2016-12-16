@@ -5,9 +5,9 @@
  */
 
 var jsonFile;
+var nameLength;
 var racers;
 var prestige;
-var xDoc;
 
 function update() {
     $("#racersDiv").children().each(function (i, item) {
@@ -75,9 +75,9 @@ function updateRacers() {
         d.empty();
         $.each(sorted, function (i, player) {
             if (i % maxRacers == 0) {
-                d.append('<div style="float: left; display: none;">');
-            }
-            d.children().last().append('<div>' + (i + 1) + '. <img style="height: 32px; width: 32px;" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ' + player.name + " - " + player.keys + '<img style="height: 32px; width: 32px;" src="' + player.racer.image + '" alt="' + player.racer.name + '" /></div>');
+                d.append('<div class="playerDiv">');
+            } 
+            d.children().last().append('<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> <img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ' + ((player.name.length > nameLength) ? (player.name.substring(0,nameLength - 2) + '...') : player.name) + " - " + player.keys + '</div>');
         });
         if (d.children().length > 0) {
             $(d.children()[0]).fadeIn();
@@ -93,6 +93,7 @@ $(document).ready(function () {
 function loadConfig() {
     $.getJSON("resources/config.json", function(configData) {
     jsonFile = configData.jsonFile;
+    nameLength = configData.nameLength;
     racers = [];
     prestige = [];
 

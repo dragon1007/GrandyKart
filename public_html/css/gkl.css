@@ -9,9 +9,29 @@ and open the template in the editor.
 */
 
 #racersDiv {
-    width: 420px; 
+    width: 100%; 
     height: 600px; 
     color: #FABE1B; 
-    font-size: 16px; 
+    font-size: 38px; 
     font-family: 'Bebas Neue'; 
+}
+
+.playerDiv {
+    float: left;
+    display: none;
+    width: 100%;
+}
+
+
+img {
+    position: relative;
+    top: 2px;
+    height: 38px;
+    width: 38px;
+}
+
+.numberDiv {
+  text-align: right;
+  width: 38px;
+  display: inline-block;
 }

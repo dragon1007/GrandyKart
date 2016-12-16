@@ -1,5 +1,6 @@
 {
   "jsonFile": "resources/testdata.json",
+  "nameLength": 14,
   "racers": [
     { "displayName": "Bowser", "image": "images/Bowser.png" },
     { "displayName": "Wario", "image": "images/Wario.png" },
