@@ -74,7 +74,7 @@ function updateRacers() {
             if (i % maxPlayers == 0) {
                 d.append('<div class="playerDiv">');
             } 
-            d.children().last().append('<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> <img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ' + ((player.name.length > nameLength) ? (player.name.substring(0,nameLength - 2) + '...') : player.name) + " - " + player.keys + '</div>');
+            d.children().last().append('<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> <img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> <span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0,nameLength - 2) + '...') : player.name) + '</span><span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>');
         });
         if (d.children().length > 1) {
             $(d.children()[0]).fadeIn();

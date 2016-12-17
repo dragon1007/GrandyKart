@@ -43,6 +43,10 @@ img {
     width: 100%;
 }
 
+.playerName {
+    color: #ffffff;
+}
+
 .racerImage {
     float: right;
 }
