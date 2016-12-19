@@ -1,9 +1,12 @@
 {
   "jsonFile": "resources/testdata.json",
   "nameLength": 14,
-  "maxPlayersPerPage": 15,
+  "maxPlayersPerPage": 10,
   "maxPlayersTotal": 30,
+  "updatePlayersSpeed": 1,
   "scrollSpeed": 5,
+  "newPlayerPopupTime": 1.5,
+  "apiSecret": "",
   "racers": [
     { "displayName": "Bowser", "image": "images/Bowser.png" },
     { "displayName": "Wario", "image": "images/Wario.png" },

@@ -9,8 +9,61 @@ and open the template in the editor.
 */
 
 body {
+    height: 1920px;
+    width: 1080px;
+    background: #000000;
     color: #FABE1B; 
-    font-family: 'Bebas Neue'; 
+    font-family: 'Bebas Neue';
+    font-size: 38px;
+}
+
+.racerOverlay {
+    position: absolute;
+    height: 340px;
+    width: 292px;
+    overflow: hidden;
+}
+
+.racerOverlay1 {
+    left: 746px;
+    top: 653px;
+}
+.racerOverlay2 {
+    left: 430px;
+    top: 653px;
+}
+.racerOverlay3 {
+    left: 114px;
+    top: 653px;
+}
+.racerOverlay4 {
+    left: 1062px;
+    top: 284px;
+}
+.racerOverlay5 {
+    left: 746px;
+    top: 284px;
+}
+.racerOverlay6 {
+    left: 430px;
+    top: 284px;
+}
+
+.newPlayerPopup {
+    display: none;
+    position: relative;
+    top: 200px;
+    background: rgba(0, 0, 0, .5);
+}
+
+.newPlayerPopup span {
+    position: relative;
+}
+
+.leaderboard {
+    position: absolute;
+    left: 1474px;
+    top: 78px;
 }
 
 .leaderboardHeader {
@@ -20,13 +73,11 @@ body {
 }
 
 #racersDiv {
-    width: 100%; 
-    font-size: 38px; 
+    width: 476px;
 }
 
 .numberDiv {
   text-align: right;
-  width: 38px;
   display: inline-block;
 }
 
@@ -35,12 +86,6 @@ img {
     top: 2px;
     height: 38px;
     width: 38px;
-}
-
-.playerDiv {
-    float: left;
-    display: none;
-    width: 100%;
 }
 
 .playerName {
