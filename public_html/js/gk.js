@@ -162,8 +162,8 @@ function loadConfig() {
     newPlayerPopupTime = configData.newPlayerPopupTime;
     apiSecret = configData.apiSecret;
     let apiSocket = new WebSocket("ws://localhost:3337");
-    apiSocket.onLoad(function() {apiSocket.send('api|register|' + apiSecret)});
-    apiSocket.onMessage = updateGlobal;
+    apiSocket.onopen = function() {apiSocket.send('api|register|' + apiSecret)};
+    apiSocket.onmessage = updateGlobal;
 
     $.each(configData.racers, function(i, item) {
       racers.push({"name": item.displayName, "image": item.image});
