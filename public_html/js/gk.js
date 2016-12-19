@@ -136,7 +136,7 @@ function updatePlayers(initial = false) {
 
 function updateGlobal(event) {
     var response = JSON.parse(event.data);
-    if (event.data.function == "get_top_users") {
+    if (response.function == "get_top_users") {
         $('#globalTest').empty();
         $.each(response.msg, function (user) {
             $('#globalTest').append('<div>' + user.name + ' - ' + user.points + '</div>');
