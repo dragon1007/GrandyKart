@@ -16,6 +16,7 @@ let prestige = [];
 let currentPage = 0;
 let players = [];
 let newPlayerQueue = [];
+let globalPlayers = [];
 let apiSecret;
 let apiSocket;
 
@@ -44,7 +45,7 @@ function updateOverlay(overlayId) {
     let overlay = $('.racerOverlay' + overlayId);
     if (overlay.children().length > 0) {
         let el = $($('.racerOverlay' + overlayId + ' > div')[0]);
-        $(el.children()[0]).finish().animate({left: '350px'},1500).queue(function() {
+        $(el.children()[0]).finish().animate({left: '350px'},1200).queue(function() {
             if (el.next().length) {
                 el.finish().fadeOut();
                 el.next().animate({top: '162px'}).queue(function () {
@@ -96,7 +97,7 @@ function updateDisplay() {
 }
 
 function updatePlayers(initial = false) {
-    if (apiSocket) {
+    if (apiSocket.readyState == 1) {
         apiSocket.send('api|get_top_users|0|' + maxPlayersTotal);
     }
     $.get(jsonFile, function (data) {
@@ -133,12 +134,15 @@ function updatePlayers(initial = false) {
     });
 }
 
-function updateGlobal(data) {
-    var topPlayers = JSON.parse(data);
-    $.each(topPlayers.msg,function(user) {
+function updateGlobal(event) {
+    var response = JSON.parse(event.data);
+    if (event.data.function == "get_top_users") {
         $('#globalTest').empty();
-        $('#globalTest').append('<div>' + user.name + ' - ' + user.points + '</div>');
-    });
+        $.each(response.msg, function (user) {
+            $('#globalTest').append('<div>' + user.name + ' - ' + user.points + '</div>');
+            globalPlayers[user.name] = {"name": user.name, "keys": user.points};
+        });
+    }
 }
 
 function loadConfig() {
@@ -161,7 +165,7 @@ function loadConfig() {
     scrollSpeed = configData.scrollSpeed;
     newPlayerPopupTime = configData.newPlayerPopupTime;
     apiSecret = configData.apiSecret;
-    let apiSocket = new WebSocket("ws://localhost:3337");
+    apiSocket = new WebSocket("ws://localhost:3337");
     apiSocket.onopen = function() {apiSocket.send('api|register|' + apiSecret)};
     apiSocket.onmessage = updateGlobal;
 
