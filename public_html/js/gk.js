@@ -176,7 +176,7 @@ function socketResponse(event) {
             apiSocket.send('api|get_users|0|' + response.msg);
         }
     }
-    if (response.function == "get_top_users") {
+    if (response.function == "get_users") {
         let sorted = response.msg.sort(apiResultSort).slice(0,maxPlayersTotal);
         $.each(sorted, function (i, user) {
             globalPlayers[user.name] = {"name": user.user, "keys": user.points};
