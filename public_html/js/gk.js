@@ -10,6 +10,7 @@ let maxPlayersPerPage;
 let maxPlayersTotal;
 let updatePlayersSpeed;
 let scrollSpeed;
+let globalUpdateSpeed;
 let newPlayerPopupTime;
 let racers = [];
 let prestige = [];
@@ -21,16 +22,25 @@ let apiSecret;
 let apiSocket;
 let displayGlobal = false;
 
+function apiResultSort(a, b) {
+    if (a.vip > b.vip) { return -1; }
+    if (a.vip < b.vip) { return 1; }
+    if (a.points > b.points) { return -1; }
+    if (a.points < b.points) { return 1; }
+    if (a.user < b.user) { return -1; }
+    if (a.user > b.user) { return 1; }
+    return 0;
+}
 
 function sortPrestige(a, b) {
-            if (a.prestige.level > b.prestige.level) { return -1; }
-            if (a.prestige.level < b.prestige.level) { return 1; }
-            if (a.keys > b.keys) { return -1; }
-            if (a.keys < b.keys) { return 1; }
-            if (a.name < b.name) { return -1; }
-            if (a.name > b.name) { return 1; }
-            return 0;
-        }
+    if (a.prestige.level > b.prestige.level) { return -1; }
+    if (a.prestige.level < b.prestige.level) { return 1; }
+    if (a.keys > b.keys) { return -1; }
+    if (a.keys < b.keys) { return 1; }
+    if (a.name < b.name) { return -1; }
+    if (a.name > b.name) { return 1; }
+    return 0;
+}
 
 
 function addToOverlay(overlayId) {
@@ -47,7 +57,7 @@ function updateOverlay(overlayId) {
     let overlay = $('.racerOverlay' + overlayId);
     if (overlay.children().length > 0) {
         let el = $($('.racerOverlay' + overlayId + ' > div')[0]);
-        $(el.children()[0]).finish().animate({left: '350px'},1200).queue(function() {
+        $(el.children()[0]).finish().animate({left: '350px'},newPlayerPopupTime * 1000).queue(function() {
             if (el.next().length) {
                 el.finish().fadeOut();
                 el.next().animate({top: '162px'}).queue(function () {
@@ -118,9 +128,6 @@ function updateDisplay() {
 }
 
 function updatePlayers(initial = false) {
-    if (apiSocket.readyState == 1) {
-        apiSocket.send('api|get_top_users|0|' + maxPlayersTotal);
-    }
     $.get(jsonFile, function (data) {
         try {
             let keysData = JSON.parse(data.slice(0, -1) + "]");
@@ -147,6 +154,7 @@ function updatePlayers(initial = false) {
             if (initial) {
                 updateDisplay();
                 updateOverlays();
+                updateGlobal();
            }
         }
         catch(e) { }
@@ -155,11 +163,23 @@ function updatePlayers(initial = false) {
     });
 }
 
-function updateGlobal(event) {
+function updateGlobal() {
+    if (apiSocket.readyState == 1) {
+        apiSocket.send('api|get_users_count');
+    }
+}
+
+function socketResponse(event) {
     var response = JSON.parse(event.data);
+    if (response.function == "get_users_count") {
+        if (apiSocket.readyState == 1) {
+            apiSocket.send('api|get_users|0|' + response.msg);
+        }
+    }
     if (response.function == "get_top_users") {
+        let sorted = response.msg.sort(apiResultSort).slice(0,maxPlayersTotal);
         $('#globalTest').empty();
-        $.each(response.msg, function (i, user) {
+        $.each(sorted, function (i, user) {
             $('#globalTest').append('<div>' + user.user + ' - ' + user.points + '</div>');
             globalPlayers[user.name] = {"name": user.user, "keys": user.points};
         });
@@ -173,7 +193,8 @@ function loadConfig() {
     /** * @property {number} maxPlayersTotal - total number of players to display on all pages of leaderboard */
     /** * @property {number} updatePlayersSpeed - how often to update Player data, in seconds (decimals allowed) */
     /** * @property {number} scrollSpeed - how often to change pages of the leaderboard in seconds (decimals allowed) */
-    /** * @property {number} newPlayerPopupTime - how long to display the popup when players enter, *in seconds (decimals allowed) */
+    /** * @property {number} globalUpdateSpeed - how often to poll the API for the global leaderboard stats, in seconds (decimals allowed) */
+    /** * @property {number} newPlayerPopupTime - how long to display the popup when players enter, in seconds (decimals allowed) */
     /** * @property {string} apiSecret - DeepBot API key */
     /** * @property {{displayName: string, image: string}} racers */
     /** * @property {{displayName: string, image: string}} prestige */
@@ -184,11 +205,12 @@ function loadConfig() {
     maxPlayersTotal = configData.maxPlayersTotal;
     updatePlayersSpeed = configData.updatePlayersSpeed;
     scrollSpeed = configData.scrollSpeed;
+    globalUpdateSpeed = configData.globalUpdateSpeed;
     newPlayerPopupTime = configData.newPlayerPopupTime;
     apiSecret = configData.apiSecret;
     apiSocket = new WebSocket("ws://localhost:3337");
     apiSocket.onopen = function() {apiSocket.send('api|register|' + apiSecret)};
-    apiSocket.onmessage = updateGlobal;
+    apiSocket.onmessage = socketResponse;
 
     $.each(configData.racers, function(i, item) {
       racers.push({"name": item.displayName, "image": item.image});
@@ -202,6 +224,7 @@ function loadConfig() {
     updatePlayers(true);
     document.updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
     document.updateOverlaysTimer = setInterval(updateOverlays, 3000);
+    document.updateGlobalTimer = setInterval(updateGlobal, globalUpdateSpeed * 1000);
   });
 }
 
