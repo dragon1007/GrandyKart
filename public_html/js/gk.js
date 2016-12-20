@@ -178,9 +178,7 @@ function socketResponse(event) {
     }
     if (response.function == "get_top_users") {
         let sorted = response.msg.sort(apiResultSort).slice(0,maxPlayersTotal);
-        $('#globalTest').empty();
         $.each(sorted, function (i, user) {
-            $('#globalTest').append('<div>' + user.user + ' - ' + user.points + '</div>');
             globalPlayers[user.name] = {"name": user.user, "keys": user.points};
         });
     }
