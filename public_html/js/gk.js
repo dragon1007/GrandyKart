@@ -19,6 +19,8 @@ let newPlayerQueue = [];
 let globalPlayers = [];
 let apiSecret;
 let apiSocket;
+let displayGlobal = false;
+
 
 function sortPrestige(a, b) {
             if (a.prestige.level > b.prestige.level) { return -1; }
@@ -73,24 +75,43 @@ function updateOverlays() {
 }
 
 function updateDisplay() {
-    let playerArray = [];
-    Object.keys(players).forEach(function (key, index) {
-        playerArray.push(this[key]);
-    }, players);
-    let sorted = playerArray.sort(sortPrestige).slice(0, maxPlayersTotal);
-
     let d = $("#racersDiv");
+    let playerArray = [];
+    if (displayGlobal) {
+        $('.leaderboardHeader').text('Global Leaders');
+        Object.keys(globalPlayers).forEach(function (key, index) {
+            playerArray.push(this[key]);
+        }, globalPlayers);
+    }
+    else {
+        $('.leaderboardHeader').text('Current Players');
+        Object.keys(players).forEach(function (key, index) {
+            playerArray.push(this[key]);
+        }, players);
+    }
+    let sorted = playerArray.sort(sortPrestige).slice(0, maxPlayersTotal);
     let fade = sorted.length > maxPlayersPerPage;
     let update = function () {
         d.empty();
-        if ((currentPage * maxPlayersPerPage) > sorted.length - 1) {
-            currentPage = 0;
-        }
         for (let i = currentPage * maxPlayersPerPage; i < (currentPage + 1) * maxPlayersPerPage && sorted[i] !== undefined; i++) {
             let player = sorted[i];
-            d.append('<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> <img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> <span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span><span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>');
+            if (displayGlobal == false) {
+                d.append('<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> <img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> <span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span><span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>');
+            }
+            else {
+                let t = '<div><div class="numberDiv">' + (i + 1) + '.</div> ';
+                if (players[player.name] !== undefined) {
+                    t = t + '<img class="racerImage" src="' + players[player.name].racer.image + '" alt="' + players[player.name].racer.name + '" /> <img class="prestigeImage" src="' + players[player.name].prestige.image + '" alt="' + players[player.name].prestige.name + '" /> ';
+                }
+                t = t + '<span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span><span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>';
+                d.append(t);
+            }
         }
         currentPage += 1;
+        if ((currentPage * maxPlayersPerPage) > sorted.length - 1) {
+            currentPage = 0;
+            displayGlobal = !displayGlobal;
+        }
         fade ? d.fadeIn() : d.show();
     }
     fade ? d.fadeOut(update) : d.hide(0,update);
@@ -138,9 +159,9 @@ function updateGlobal(event) {
     var response = JSON.parse(event.data);
     if (response.function == "get_top_users") {
         $('#globalTest').empty();
-        $.each(response.msg, function (user) {
-            $('#globalTest').append('<div>' + user.name + ' - ' + user.points + '</div>');
-            globalPlayers[user.name] = {"name": user.name, "keys": user.points};
+        $.each(response.msg, function (i, user) {
+            $('#globalTest').append('<div>' + user.user + ' - ' + user.points + '</div>');
+            globalPlayers[user.name] = {"name": user.user, "keys": user.points};
         });
     }
 }
