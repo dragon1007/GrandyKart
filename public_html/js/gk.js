@@ -189,6 +189,7 @@ function updateGlobal() {
 
 function socketResponse(event) {
     var response = JSON.parse(event.data);
+    console.log(JSON.stringify(response));
     if (response.function == "get_users_count") {
         if (apiSocket.readyState == 1) {
             apiSocket.send('api|get_users|0|' + response.msg);
