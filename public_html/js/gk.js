@@ -103,13 +103,17 @@ function updateDisplay(fadeArg = undefined) {
     let d = $("#racersDiv");
     let playerArray = [];
     if (displayGlobal) {
-        $('.leaderboardHeader').text('Global Leaders');
+        if ($('.leaderboardHeader').text() == 'Current Players') {
+            $('.leaderboardHeader').fadeOut(function() { $(this).finish().text('Global Leaders'); }).fadeIn();
+        }
         Object.keys(globalPlayers).forEach(function (key, index) {
             playerArray.push(this[key]);
         }, globalPlayers);
     }
     else {
-        $('.leaderboardHeader').text('Current Players');
+        if ($('.leaderboardHeader').text() == 'Global Leaders') {
+            $('.leaderboardHeader').fadeOut(function() { $(this).text('Current Players'); }).fadeIn();
+        }
         Object.keys(players).forEach(function (key, index) {
             playerArray.push(this[key]);
         }, players);
