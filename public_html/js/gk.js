@@ -21,6 +21,8 @@ let globalPlayers = [];
 let apiSecret;
 let apiSocket;
 let displayGlobal = false;
+let racerFilter = -1;
+let showAll = false;
 
 function apiResultSort(a, b) {
     if (a.vip > b.vip) { return -1; }
@@ -40,6 +42,19 @@ function sortPrestige(a, b) {
     if (a.name < b.name) { return -1; }
     if (a.name > b.name) { return 1; }
     return 0;
+}
+
+function filterPlayers(players) {
+    if (racerFilter < 0) {
+        return players;
+    }
+    let returnArray = [];
+    $.each(players,function(i,item) {
+        if (item.racer.id == racerFilter) {
+            returnArray.push(item);
+        }
+    });
+  return returnArray;
 }
 
 
@@ -84,7 +99,7 @@ function updateOverlays() {
     }
 }
 
-function updateDisplay() {
+function updateDisplay(fadeArg = undefined) {
     let d = $("#racersDiv");
     let playerArray = [];
     if (displayGlobal) {
@@ -99,8 +114,11 @@ function updateDisplay() {
             playerArray.push(this[key]);
         }, players);
     }
-    let sorted = playerArray.sort(sortPrestige).slice(0, maxPlayersTotal);
-    let fade = sorted.length > maxPlayersPerPage;
+    let sorted = filterPlayers(playerArray).sort(sortPrestige);
+    if (showAll == false) {
+        sorted = sorted.slice(0, maxPlayersTotal);
+    }
+    let fade = fadeArg || sorted.length > maxPlayersPerPage;
     let update = function () {
         d.empty();
         for (let i = currentPage * maxPlayersPerPage; i < (currentPage + 1) * maxPlayersPerPage && sorted[i] !== undefined; i++) {
@@ -201,6 +219,7 @@ function loadConfig() {
     nameLength = configData.nameLength;
     maxPlayersPerPage = configData.maxPlayersPerPage;
     maxPlayersTotal = configData.maxPlayersTotal;
+    $('#maxPlayersInput').val(maxPlayersTotal);
     updatePlayersSpeed = configData.updatePlayersSpeed;
     scrollSpeed = configData.scrollSpeed;
     globalUpdateSpeed = configData.globalUpdateSpeed;
@@ -213,6 +232,35 @@ function loadConfig() {
     $.each(configData.racers, function(i, item) {
       racers.push({"name": item.displayName, "image": item.image});
       newPlayerQueue.push(new Array());
+      if (i > 0 && i < configData.racers.length - 1) {
+          $('.filterButtons').append('<img class="filter dim" src="' + item.image + '">')
+          $('.filterButtons').children().last().click(function () {
+              $('.filter').removeClass('clicked');
+              displayGlobal = false;
+              currentPage = 0;
+              if (racerFilter == i) {
+                  racerFilter = -1;
+              }
+              else {
+                  racerFilter = i;
+                  $(this).addClass('clicked');
+              }
+              clearInterval(document.updateDisplayTimer);
+              updateDisplay(true);
+              document.updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
+          });
+      }
+    });
+    $('.filterButtons').append('<div class="showAllButtons"><div class="showAllButton button dim clicked" id="topButton">Top</div><div class="showAllButton button dim" id="allButton">All</div></div>')
+    $('#topButton').click(function() {
+        $(this).addClass('clicked');
+        $('#allButton').removeClass('clicked');
+        showAll = false;
+    });
+    $('#allButton').click(function() {
+        $(this).addClass('clicked');
+        $('#topButton').removeClass('clicked');
+        showAll = true;
     });
 
     $.each(configData.prestige, function(i, item) {
@@ -222,10 +270,31 @@ function loadConfig() {
     updatePlayers(true);
     document.updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
     document.updateOverlaysTimer = setInterval(updateOverlays, 3000);
-    document.updateGlobalTimer = setInterval(updateGlobal, globalUpdateSpeed * 1000);
+    //document.updateGlobalTimer = setInterval(updateGlobal, globalUpdateSpeed * 1000);
   });
 }
 
 $(document).ready(function () {
     loadConfig();
+    $('#filterButton').click(function() {
+        let filterButtons = $('.filterButtons');
+        if (filterButtons.is(':visible')) {
+            filterButtons.slideUp();
+        }
+        else {
+            filterButtons.slideDown();
+        }
+    })
+    $('#optionsButton').click(function() {
+        let optionsButtons = $('.optionsButtons');
+        if (optionsButtons.is(':visible')) {
+            optionsButtons.slideUp();
+        }
+        else {
+            optionsButtons.slideDown();
+        }
+    })
+    $('#maxPlayersInput').change(function() {
+        maxPlayersTotal = $(this).val();
+    });
 });
