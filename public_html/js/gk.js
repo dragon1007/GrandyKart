@@ -270,7 +270,7 @@ function loadConfig() {
     updatePlayers(true);
     document.updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
     document.updateOverlaysTimer = setInterval(updateOverlays, 3000);
-    //document.updateGlobalTimer = setInterval(updateGlobal, globalUpdateSpeed * 1000);
+    document.updateGlobalTimer = setInterval(updateGlobal, globalUpdateSpeed * 1000);
   });
 }
 
