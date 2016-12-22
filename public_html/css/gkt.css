@@ -1,0 +1,245 @@
+body{
+ overflow:hidden; 
+ padding: 0px 0px;
+ margin: 0px 0px;
+ 
+ width:1920px;
+ height:350px;
+}
+input {
+ font-size:40px; 
+}
+
+#fulltrack {
+  overflow:hidden;
+ width:1920px;
+ height:300px;
+ opacity:0;
+}
+
+#fulltrack > img {
+  position:relative;
+  
+ top:10px;
+  display:block;
+  margin: auto;
+ height: 60px;
+ width:auto;
+ opacity:0.8;
+}
+
+#timer {
+position: absolute;
+top:50px;
+color:white;
+text-shadow: 2px 0px rgba(0,0,0,1.00),0px 2px rgba(0,0,0,1.00),-2px 0px rgba(0,0,0,1.00),0px -2px rgba(0,0,0,1.00);
+font-size:70px;
+font-weight:900;
+left:1710px;
+}
+
+#completed {
+position: absolute;
+top:70px;
+color:white;
+text-shadow: 2px 0px rgba(0,0,0,1.00),0px 2px rgba(0,0,0,1.00),-2px 0px rgba(0,0,0,1.00),0px -2px rgba(0,0,0,1.00);
+font-size:40px;
+font-weight:900;
+left:50px;
+}
+.character {
+  display:inline;
+  position:absolute;
+  padding: 0px;
+  margin:0px;
+ width:50px ;
+ height:50px;
+ z-index:2;
+}
+
+#characters {
+ position:absolute;
+ top:70px;
+ left:225px;
+ width:350px;
+ height:70px; 
+ opacity:0;
+}
+
+#race {
+  top:10px;
+  position:relative;
+  overflow:hidden;
+  display:block;
+  margin: auto;
+ height: 00px;
+ width:800px;
+ opacity:0;
+}
+
+
+
+.racer {
+ position:absolute; 
+}
+.racer > img {
+  position:absolute;
+} 
+
+#R1 {
+  position:absolute;
+  border-radius:0px 0px 0px 50px;
+ top:70px;
+ left:100px;
+ background: url(..images/Bowser0.png);
+ background-size:contain;
+ width:100px;
+ height:100px; 
+ -webkit-animation:  updown 0.1s linear infinite alternate;
+}
+
+.racer:nth-child(1) {
+  z-index:3; 
+  left: -300px;
+}
+.racer:nth-child(1) > img {
+  
+  width:300px;
+  top:83px;
+} 
+#R2 {
+  position:absolute;
+  border-radius:0px 0px 0px 35px;
+ top:5px;
+ left:638px;
+ background: url(..images/Bowser0.png);
+ background-size:contain;
+ width:70px;
+ height:70px; 
+ -webkit-animation:  updown 0.1s linear infinite alternate;
+}
+
+.racer:nth-child(2) > img {
+  width:250px;
+  top:20px;
+  left:550px;
+  top:0px;
+} 
+
+@-webkit-keyframes updown {
+  
+    0% {-webkit-transform:translateY(0px);}
+    100% {-webkit-transform:translateY(-5px);}
+}
+
+
+#result {
+  top:10px;
+  position:relative;
+  overflow:hidden;
+  display:block;
+  margin: auto;
+ height: 00px;
+ width:800px;
+ opacity:0;
+}
+
+#result > img {
+  position:absolute;
+  top:70px;
+  left:195px;
+   display:block;
+  margin: auto;
+ height: 150px;
+ width:400px;
+ opacity:0.8;
+}
+
+#score {
+   position:absolute;
+  border-radius:40px;
+  background-color:rgba(255,253,0,0.4);
+ top:10px;
+ left:340px;
+
+ width:120px;
+ height:120px; 
+}
+#score1 {
+  left:18px;
+  top:14px;
+  position:absolute;
+ width:90px;
+ height:90px; 
+ background: url(..images/Bowser0.png);
+ background-size:contain;
+ 
+ -webkit-animation:  updown 0.4s linear infinite alternate;
+}
+
+#score2 {
+  left:230px;
+  top:60px;
+  position:absolute;
+ width:90px;
+ height:90px; 
+ background: url(..images/Bowser0.png);
+ background-size:contain;
+ 
+}
+
+#score3 {
+  left:490px;
+  top:80px;
+  position:absolute;
+ width:90px;
+ height:90px; 
+ background: url(..images/Bowser0.png);
+ background-size:contain;
+ 
+}
+
+.stats {
+ height: 50px;	
+ overflow: hidden;
+ position: relative;
+}
+.stats p {
+ font-size: 3em;
+ color: limegreen;
+ position: absolute;
+ width: 100%;
+ height: 100%;
+ margin: 0;
+ line-height: 50px;
+ text-align: center;
+ /* Starting position */
+ -moz-transform:translateX(100%);
+ -webkit-transform:translateX(100%);	
+ transform:translateX(100%);
+ /* Apply animation to this element */	
+ -moz-animation: stats 15s linear infinite;
+ -webkit-animation: stats 15s linear infinite;
+ animation: stats 15s linear infinite;
+}
+/* Move it (define the animation) */
+@-moz-keyframes stats {
+ 0%   { -moz-transform: translateX(100%); }
+ 100% { -moz-transform: translateX(-100%); }
+}
+@-webkit-keyframes stats {
+ 0%   { -webkit-transform: translateX(100%); }
+ 100% { -webkit-transform: translateX(-100%); }
+}
+@keyframes stats {
+ 0%   { 
+ -moz-transform: translateX(100%); /* Firefox bug fix */
+ -webkit-transform: translateX(100%); /* Firefox bug fix */
+ transform: translateX(100%); 		
+ }
+ 100% { 
+ -moz-transform: translateX(-100%); /* Firefox bug fix */
+ -webkit-transform: translateX(-100%); /* Firefox bug fix */
+ transform: translateX(-100%); 
+ }
+}

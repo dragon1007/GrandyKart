@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/gkt.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/gkt.css">
+    <title>Race</title>
+</head>
+
+  <body>
+    <input type="button" id="reset" value="reset/fadein">
+    <input type="button" id="start" value="start">
+    <input type="button" id="stop" value="stop">
+    <input type="button" id="win" value="completed level">
+   <input type="button" id= "lose" value="undo comp. level">
+    <input type="button" id="hide" value="Hide race">
+    <input type="button" id="skip" value="skip level">
+    <div id="fulltrack">
+      <div id="completed">levels: 0</div>
+      <img src="images/Minimap.png"/>
+      <div id="timer">45:00</div>
+       <div class="stats">
+          <p id="statsLine">Levels played: 0</p>
+      </div>
+      <div id="characters">
+        <img id="0" class="character" src="images/Bowser0.png"/>
+        <img id="1" class="character" src="images/Wario1.png"/>
+        <img id="2" class="character" src="images/DK3.png"/>
+        <img id="3" class="character" src="images/Yoshi6.png"/>
+        <img id="4" class="character" src="images/Toad5.png"/>
+        
+        <img id="5" class="character" src="images/Peach7.png"/>
+        
+        <img id="6" class="character" src="images/Luigi2.png"/>
+        <img id="7" class="character" src="images/Mario4.png"/>
+      </div>
+      <div id="race">
+        <div class="racer">
+          <img src="images/Kart.gif"/>
+          <div id="R1"></div>
+        </div>
+        <div class="racer">
+       <img src="images/Kart.gif"/>
+          <div id="R2"></div>
+        </div>
+      </div>
+      
+      <div id="result">
+       <img src="images/scoreb.png"/>
+       <div id="score"><div id="score1"></div></div>
+       <div id="score2"></div>
+       <div id="score3"></div>
+      </div>
+    </div>
+    
+  </body>
+</html>
+
