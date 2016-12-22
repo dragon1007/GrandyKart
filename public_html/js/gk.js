@@ -24,16 +24,6 @@ let displayGlobal = false;
 let racerFilter = -1;
 let showAll = false;
 
-function apiResultSort(a, b) {
-    if (a.vip > b.vip) { return -1; }
-    if (a.vip < b.vip) { return 1; }
-    if (a.points > b.points) { return -1; }
-    if (a.points < b.points) { return 1; }
-    if (a.user < b.user) { return -1; }
-    if (a.user > b.user) { return 1; }
-    return 0;
-}
-
 function sortPrestige(a, b) {
     if (a.prestige.level > b.prestige.level) { return -1; }
     if (a.prestige.level < b.prestige.level) { return 1; }
@@ -43,20 +33,6 @@ function sortPrestige(a, b) {
     if (a.name > b.name) { return 1; }
     return 0;
 }
-
-function filterPlayers(players) {
-    if (racerFilter < 0) {
-        return players;
-    }
-    let returnArray = [];
-    $.each(players,function(i,item) {
-        if (item.racer.id == racerFilter) {
-            returnArray.push(item);
-        }
-    });
-  return returnArray;
-}
-
 
 function addToOverlay(overlayId) {
     let overlay = $('.racerOverlay' + overlayId);
@@ -118,7 +94,7 @@ function updateDisplay(fadeArg = undefined) {
             playerArray.push(this[key]);
         }, players);
     }
-    let sorted = filterPlayers(playerArray);
+    let sorted = playerArray;
     if (racerFilter > -1) {
         sorted = sorted.filter(function (item) {
             return item.racer.id == racerFilter;
@@ -223,7 +199,13 @@ function socketResponse(event) {
         if (currentUserRequest < totalUsers) {
             $.each(response.msg, function (i, user) {
                 if (usersToIgnore.includes(user.user) == false) {
-                    globalTempArray[user.user] = {"name": user.user, "prestige": user.vip, "keys": user.points};
+                    globalTempArray[user.user] = {"name": user.user,
+                        "prestige": {
+                            "level": user.vip,
+                            "name": prestige[user.vip].name,
+                            "image": prestige[user.vip].image
+                        },
+                        "keys": user.points};
                 }
             });
             apiSocket.send('api|get_users|' + currentUserRequest);
