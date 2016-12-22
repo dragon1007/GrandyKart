@@ -118,7 +118,13 @@ function updateDisplay(fadeArg = undefined) {
             playerArray.push(this[key]);
         }, players);
     }
-    let sorted = filterPlayers(playerArray).sort(sortPrestige);
+    let sorted = filterPlayers(playerArray);
+    if (racerFilter > -1) {
+        sorted = sorted.filter(function (item) {
+            return item.racer.id == racerFilter;
+        });
+    }
+    sorted = sorted.sort(sortPrestige);
     if (showAll == false) {
         sorted = sorted.slice(0, maxPlayersTotal);
     }
@@ -193,15 +199,17 @@ function updateGlobal() {
 
 function socketResponse(event) {
     var response = JSON.parse(event.data);
-    console.log(JSON.stringify(response));
     if (response.function == "get_users_count") {
         if (apiSocket.readyState == 1) {
             apiSocket.send('api|get_users|0|' + response.msg);
+            console.log('api|get_users|0|' + response.msg);
         }
     }
     if (response.function == "get_users") {
+        console.log(response.msg.length);
         let sorted = response.msg.sort(apiResultSort).slice(0,maxPlayersTotal);
         $.each(sorted, function (i, user) {
+            console.log('added');
             globalPlayers[user.name] = {"name": user.user, "prestige": user.vip, "keys": user.points};
         });
     }
