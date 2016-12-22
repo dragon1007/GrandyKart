@@ -7,10 +7,10 @@
 
 
 var MOVEFACTOR = 1150 / (45 * 60);
-var CHARSDIV = $("#characters");
-var TIMEDIV = $("#timer");
-var LEVELDIV = $("#completed");
-var DIVS = [$("#7"), $("#6"), $("#5"), $("#4"), $("#3"), $("#2"), $("#1"), $("#0")];
+var CHARSDIV;
+var TIMEDIV;
+var LEVELDIV;
+var DIVS = [];
 var PLACELOOKUP = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7};
 
 var currentWins = 0;
@@ -40,7 +40,7 @@ var audioWins = [
 var levelWon = [];
 var levelTime = [];
 var numOfLevels = 0;
-var lastTime;
+var lastTime = 0;
 
 function updateTime() {
     if (!running)
@@ -268,7 +268,7 @@ function skipLevel() {
 
 function levelStats(won) {
     var timepassed = total - time;
-    levelTime[numOfLevels] = lastTime - timepassed;
+    levelTime[numOfLevels] = timepassed - lastTime;
     lastTime = timepassed;
     levelWon[numOfLevels++] = won;
     var stats = "Levels played: " + numOfLevels;
@@ -278,13 +278,14 @@ function levelStats(won) {
         var sec = levelTime[i] % 60;
         sec = sec < 10 ? "0" + sec : sec;
         var formatted = min + ":" + sec;
-        stats += " -- Level " + i;
+        stats += " -- Level " + (i+1);
         if (levelWon[i]) {
             stats += " Completed in " + formatted;
         } else {
             stats += " Failed in " + formatted;
         }
     }
+    $("#statsLine").text(stats);
 }
 
 $(document).ready(function () {
@@ -296,4 +297,8 @@ $(document).ready(function () {
     $("#lose").click(undoSwap.bind(this, false));
     $("#hide").click(isShown.bind(this, false));
     $("#skip").click(skipLevel);
+    CHARSDIV = $("#characters");
+    TIMEDIV = $("#timer");
+    LEVELDIV = $("#completed");
+    DIVS = [$("#7"), $("#6"), $("#5"), $("#4"), $("#3"), $("#2"), $("#1"), $("#0")];
 });
