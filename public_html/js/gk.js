@@ -18,7 +18,6 @@ let currentPage = 0;
 let players = [];
 let newPlayerQueue = [];
 let globalPlayers = [];
-let apiSecret;
 let apiSocket;
 let displayGlobal = false;
 let racerFilter = -1;
@@ -97,7 +96,13 @@ function updateDisplay(fadeArg = undefined) {
             leaderBoard.fadeOut(function() { $(this).finish().text('Global Leaders'); });
         }
         Object.keys(globalPlayers).forEach(function (key) {
-            playerArray.push(this[key]);
+            let player = { "name": this[key].name };
+            if (players[this[key].name] !== undefined) {
+                player.racer = players[this[key].name].racer
+            }
+            player.prestige = this[key].prestige;
+            player.keys = this[key].keys;
+            playerArray.push(player);
         }, globalPlayers);
     }
     else {
@@ -105,7 +110,16 @@ function updateDisplay(fadeArg = undefined) {
             leaderBoard.fadeOut(function() { $(this).text('Current Players'); });
         }
         Object.keys(players).forEach(function (key) {
-            playerArray.push(this[key]);
+            let player = { "name": this[key].name };
+            player.racer = this[key].racer
+            if (globalPlayers[this[key].name] !== undefined) {
+                player.prestige = globalPlayers[this[key].name].prestige;
+                player.keys = globalPlayers[this[key].name].keys;
+            }
+            else {
+                player.prestige = { "level": 0, "name": prestige[0].name, "image": prestige[0].image };
+            }
+            playerArray.push(player);
         }, players);
     }
     let sorted = playerArray;
@@ -123,25 +137,18 @@ function updateDisplay(fadeArg = undefined) {
         d.empty();
         for (let i = currentPage * maxPlayersPerPage; i < (currentPage + 1) * maxPlayersPerPage && sorted[i] !== undefined; i++) {
             let player = sorted[i];
-            if (global) {
-                let t = '<div><div class="numberDiv">' + (i + 1) + '.</div> ';
-                if (players[player.name] !== undefined) {
-                    t = t + '<img class="racerImage" src="' + players[player.name].racer.image + '" alt="' + players[player.name].racer.name + '" /> ';
-                }
-                if (player.prestige.level > 0) {
-                    t = t + '<img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ';
-                }
-                t = t + '<span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span><span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>';
-                d.append(t);
+            let t = '<div><div class="numberDiv">' + (i + 1) + '.</div> ';
+            if (player.racer !== undefined) {
+                t = t + '<img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> ';
             }
-            else {
-                let t = '<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> ';
-                if (player.prestige.level > 0) {
-                    t = t + '<img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ';
-                }
-                t = t + '<span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span><span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>';
-                d.append(t);
+            if ((player.prestige !== undefined) && (player.prestige.level > 0)) {
+                t = t + '<img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ';
             }
+            t = t + '<span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span>';
+            if (player.keys !== undefined) {
+                t = t + '<span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>';
+            }
+            d.append(t);
         }
         currentPage += 1;
         if ((currentPage * maxPlayersPerPage) > sorted.length - 1) {
@@ -165,13 +172,7 @@ function updatePlayers(initial = false) {
                         "id": keysData[i].racer,
                         "name": racers[keysData[i].racer].name,
                         "image": racers[keysData[i].racer].image
-                    },
-                    "prestige": {
-                        "level": keysData[i].prestige,
-                        "name": prestige[keysData[i].prestige].name,
-                        "image": prestige[keysData[i].prestige].image
-                    },
-                    "keys": keysData[i].keys
+                    }
                 };
                 if (players[keysData[i].name] === undefined) {
                     newPlayerQueue[keysData[i].racer].push(player);
@@ -244,9 +245,9 @@ function loadConfig() {
     /** * @property {number} updatePlayersSpeed - how often to update Player data, in seconds (decimals allowed) */
     /** * @property {number} scrollSpeed - how often to change pages of the leaderboard in seconds (decimals allowed) */
     /** * @property {number} globalUpdateSpeed - how often to poll the API for the global leaderboard stats, in seconds (decimals allowed) */
+    /** * @property {string[]} usersToIgnore - users to not include in the Global Leaderboard */
     /** * @property {number} newPlayerPopupTime - how long to display the popup when players enter, in seconds (decimals allowed) */
     /** * @property {string} apiSecret - DeepBot API key */
-    /** * @property {string[]} usersToIgnore - users to not include in the Global Leaderboard */
     /** * @property {{displayName: string, image: string}} racers */
     /** * @property {{displayName: string, image: string}} prestige */
     $.getJSON("resources/config.json", function(configData) {
@@ -257,8 +258,8 @@ function loadConfig() {
     updatePlayersSpeed = configData.updatePlayersSpeed;
     scrollSpeed = configData.scrollSpeed;
     globalUpdateSpeed = configData.globalUpdateSpeed;
-    newPlayerPopupTime = configData.newPlayerPopupTime;
     usersToIgnore = configData.usersToIgnore;
+    newPlayerPopupTime = configData.newPlayerPopupTime;
 
     $.each(configData.racers, function(i, item) {
       racers.push({"name": item.displayName, "image": item.image});
@@ -301,9 +302,8 @@ function loadConfig() {
       prestige.push({"name": item.displayName, "image": item.image});
     });
 
-    apiSecret = configData.apiSecret;
     apiSocket = new WebSocket("ws://localhost:3337");
-    apiSocket.onopen = function() {apiSocket.send('api|register|' + apiSecret)};
+    apiSocket.onopen = function() {apiSocket.send('api|register|' + configData.apiSecret)};
     apiSocket.onmessage = socketResponse;
 
 
