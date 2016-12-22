@@ -202,13 +202,12 @@ function socketResponse(event) {
     if (response.function == "get_users_count") {
         if (apiSocket.readyState == 1) {
             apiSocket.send('api|get_users|0|' + response.msg);
-            console.log('api|get_users|0|' + response.msg);
         }
     }
     if (response.function == "get_users") {
-        console.log(response.msg.length);
         let sorted = response.msg.sort(apiResultSort).slice(0,maxPlayersTotal);
         $.each(sorted, function (i, user) {
+            console.log(user.user);
             globalPlayers[user.user] = {"name": user.user, "prestige": user.vip, "keys": user.points};
         });
     }
