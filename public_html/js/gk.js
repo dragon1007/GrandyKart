@@ -199,6 +199,7 @@ function socketResponse(event) {
         if (currentUserRequest < totalUsers) {
             $.each(response.msg, function (i, user) {
                 if (usersToIgnore.includes(user.user) == false) {
+                    if (user.vip == 10) { user.vip = 0; }
                     globalTempArray[user.user] = {"name": user.user,
                         "prestige": {
                             "level": user.vip,
