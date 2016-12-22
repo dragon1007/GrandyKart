@@ -5,8 +5,9 @@
  */
 
 
+var MAXSECONDS;
 
-var MOVEFACTOR = 1150 / (45 * 60);
+var MOVEFACTOR;
 var CHARSDIV;
 var TIMEDIV;
 var LEVELDIV;
@@ -17,6 +18,7 @@ var currentWins = 0;
 var time = 45 * 60;
 var total = 45 * 60;
 var running = false;
+var interval;
 
 var audioLosses = [
     new Audio('audio/Bowser Lose.wav'),
@@ -41,25 +43,31 @@ var levelWon = [];
 var levelTime = [];
 var numOfLevels = 0;
 var lastTime = 0;
+var racers = [];
+var totalKeys = 0;
 
 function updateTime() {
     if (!running)
         return;
-    var timepassed = total - time;
+    var timepassed = MAXSECONDS - time;
     var left = MOVEFACTOR * timepassed;
 
     CHARSDIV.css("transform", "TranslateX(" + left + "px)");
     time = time - 1;
-    var min = Math.floor(time / 60);
-    min = min < 10 ? "0" + min : min;
-    var sec = time % 60;
-    sec = sec < 10 ? "0" + sec : sec;
-    TIMEDIV.text(min + ":" + sec);
+    TIMEDIV.text(getFormatTime(time));
     if (time > 0) {
-        setTimeout(updateTime, 1000);
+//        setInterval(updateTime, 1000);
     } else {
         flashWinner();
     }
+}
+
+function getFormatTime(seconds) {
+    var min = Math.floor(seconds / 60);
+    min = min < 10 ? "0" + min : min;
+    var sec = seconds % 60;
+    sec = sec < 10 ? "0" + sec : sec;
+    return min + ":" + sec;
 }
 
 function flashWinner() {
@@ -210,9 +218,13 @@ function undoSwap(resetFull) {
 
         stopTimer();
         currentWins = 0;
-        time = 45 * 60;
-        TIMEDIV.text("45:00");
+        time = MAXSECONDS;
+        TIMEDIV.text(getFormatTime(MAXSECONDS));
         CHARSDIV.css("transform", "TranslateX(0px)");
+        numOfLevels = 0;
+        levelTime = [];
+        levelWon = [];
+        load();
     }
 
     LEVELDIV.text("levels: " + (currentWins));
@@ -249,7 +261,7 @@ function startTimer() {
     if (!running) {
         tempDisableButtons();
         running = true;
-        setTimeout(updateTime(), 1000);
+        interval = setInterval(updateTime, 1000);
         var audio = new Audio('audio/Race Start.wav');
         audio.play();
     }
@@ -259,6 +271,7 @@ function stopTimer() {
     if (running) {
         tempDisableButtons();
         running = false;
+        clearInterval(interval);
     }
 }
 
@@ -267,25 +280,27 @@ function skipLevel() {
 }
 
 function levelStats(won) {
-    var timepassed = total - time;
+    var timepassed = MAXSECONDS - time;
     levelTime[numOfLevels] = timepassed - lastTime;
     lastTime = timepassed;
     levelWon[numOfLevels++] = won;
     var stats = "Levels played: " + numOfLevels;
     for (var i = 0; i < numOfLevels; i++) {
-        var min = Math.floor(levelTime[i] / 60);
-        min = min < 10 ? "0" + min : min;
-        var sec = levelTime[i] % 60;
-        sec = sec < 10 ? "0" + sec : sec;
-        var formatted = min + ":" + sec;
-        stats += " -- Level " + (i+1);
+        stats += " <br> Level " + (i + 1);
         if (levelWon[i]) {
-            stats += " Completed in " + formatted;
+            stats += " Completed in " + getFormatTime(levelTime[i]);
         } else {
-            stats += " Failed in " + formatted;
+            stats += " Failed in " + getFormatTime(levelTime[i]);
         }
     }
-    $("#statsLine").text(stats);
+    if (won) {
+        $("#levelResult").html("Completed!");
+    } else {
+        $("#levelResult").html("Skipped!");
+    }
+    $("#levelHistory").html(stats);
+    $("#dropdownStats").toggle("slow");
+    setTimeout(function() {$("#dropdownStats").toggle("slow");},10000);
 }
 
 $(document).ready(function () {
@@ -301,4 +316,26 @@ $(document).ready(function () {
     TIMEDIV = $("#timer");
     LEVELDIV = $("#completed");
     DIVS = [$("#7"), $("#6"), $("#5"), $("#4"), $("#3"), $("#2"), $("#1"), $("#0")];
+    load();
 });
+
+function load() {
+    var keysPerEntry = 0;
+    $.getJSON("resources/config.json", function (configData) {
+        jsonFile = configData.jsonFile;
+        keysPerEntry = configData.keysPerEntry;
+        MAXSECONDS = configData.timeLimitMinutes * 60;
+        racers = [];
+        $.each(configData.racers, function (i, item) {
+            racers.push({"name": item.displayName, "image": item.image, "count": 0});
+        });
+    });
+    $.get(jsonFile, function (data) {
+        var keysData = JSON.parse(data.slice(0, -1) + "]");
+        for (var i = 0; i < keysData.length; i++) {
+            racers[keysData[i].racer].count++;
+        }
+        totalKeys = keysData.length * keysPerEntry;
+    });
+    MOVEFACTOR = 1150 / MAXSECONDS;    
+}

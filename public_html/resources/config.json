@@ -4,6 +4,8 @@
   "maxPlayersPerPage": 15,
   "maxPlayersTotal": 30,
   "scrollSpeed": 5,
+  "keysPerEntry": 1000,
+  "timeLimitMinutes": 45,
   "racers": [
     { "displayName": "Bowser", "image": "images/Bowser.png" },
     { "displayName": "Wario", "image": "images/Wario.png" },
