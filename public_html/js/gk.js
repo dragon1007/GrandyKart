@@ -24,6 +24,7 @@ let displayGlobal = false;
 let racerFilter = -1;
 let showAll = false;
 let usersToIgnore;
+let lock = 0;
 
 function sortPrestige(a, b) {
     if (a.prestige.level > b.prestige.level) { return -1; }
@@ -33,6 +34,13 @@ function sortPrestige(a, b) {
     if (a.name < b.name) { return -1; }
     if (a.name > b.name) { return 1; }
     return 0;
+}
+
+function updateDisplayNow() {
+    currentPage = 0;
+    clearInterval(document.updateDisplayTimer);
+    updateDisplay(true);
+    document.updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
 }
 
 function addToOverlay(overlayId) {
@@ -80,7 +88,8 @@ function updateDisplay(fadeArg = undefined) {
     let d = $("#racersDiv");
     let playerArray = [];
     let leaderBoard = $('.leaderboardHeader');
-    if (displayGlobal) {
+    let global = (lock == 2) || ((lock != 1) && (displayGlobal));
+    if (global) {
         if (leaderBoard.text() == 'Current Players') {
             leaderBoard.fadeOut(function() { $(this).finish().text('Global Leaders'); }).fadeIn();
         }
@@ -99,11 +108,11 @@ function updateDisplay(fadeArg = undefined) {
     let sorted = playerArray;
     if (racerFilter > -1) {
         sorted = sorted.filter(function (item) {
-            return item.racer.id == racerFilter;
+            return (players[item.name] === undefined) ? false : (players[item.name].racer.id == racerFilter);
         });
     }
     sorted = sorted.sort(sortPrestige);
-    if (showAll == false) {
+    if (global || (showAll == false)) {
         sorted = sorted.slice(0, maxPlayersTotal);
     }
     let fade = true || fadeArg || sorted.length > maxPlayersPerPage;
@@ -111,8 +120,11 @@ function updateDisplay(fadeArg = undefined) {
         d.empty();
         for (let i = currentPage * maxPlayersPerPage; i < (currentPage + 1) * maxPlayersPerPage && sorted[i] !== undefined; i++) {
             let player = sorted[i];
-            if (displayGlobal == false) {
-                let t = '<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> ';
+            if (global) {
+                let t = '<div><div class="numberDiv">' + (i + 1) + '.</div> ';
+                if (players[player.name] !== undefined) {
+                    t = t + '<img class="racerImage" src="' + players[player.name].racer.image + '" alt="' + players[player.name].racer.name + '" /> ';
+                }
                 if (player.prestige.level > 0) {
                     t = t + '<img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ';
                 }
@@ -120,10 +132,7 @@ function updateDisplay(fadeArg = undefined) {
                 d.append(t);
             }
             else {
-                let t = '<div><div class="numberDiv">' + (i + 1) + '.</div> ';
-                if (players[player.name] !== undefined) {
-                    t = t + '<img class="racerImage" src="' + players[player.name].racer.image + '" alt="' + players[player.name].racer.name + '" /> ';
-                }
+                let t = '<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> ';
                 if (player.prestige.level > 0) {
                     t = t + '<img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ';
                 }
@@ -173,7 +182,7 @@ function updatePlayers(initial = false) {
         }
         catch(e) { }
     }).always(function() {
-        if ($('#readFile').checked()) {
+        if ($('#readFile').is(':checked')) {
             document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
         }
     });
@@ -220,10 +229,8 @@ function socketResponse(event) {
                 }
             });
             apiSocket.send('api|get_users|' + currentUserRequest);
-            console.log('Added 100 users');
         }
         else {
-            console.log('Done adding users');
             globalPlayers = globalTempArray;
             currentUserRequest = 0;
         }
@@ -263,8 +270,6 @@ function loadConfig() {
           filterButtons.append('<img class="filter dim" src="' + item.image + '">');
           filterButtons.children().last().click(function () {
               $('.filter').removeClass('clicked');
-              displayGlobal = false;
-              currentPage = 0;
               if (racerFilter == i) {
                   racerFilter = -1;
               }
@@ -272,22 +277,26 @@ function loadConfig() {
                   racerFilter = i;
                   $(this).addClass('clicked');
               }
-              clearInterval(document.updateDisplayTimer);
-              updateDisplay(true);
-              document.updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
+              updateDisplayNow();
           });
       }
     });
     $('.filterButtons').append('<div class="showAllButtons"><div class="showAllButton button dim clicked" id="topButton">Top</div><div class="showAllButton button dim" id="allButton">All</div></div>');
     $('#topButton').click(function() {
+        if ($(this).css('filter') != 'grayscale(1)') {
         $(this).addClass('clicked');
         $('#allButton').removeClass('clicked');
         showAll = false;
+        updateDisplayNow();
+    }
     });
     $('#allButton').click(function() {
-        $(this).addClass('clicked');
-        $('#topButton').removeClass('clicked');
-        showAll = true;
+        if ($(this).css('filter') != 'grayscale(1)') {
+            $(this).addClass('clicked');
+            $('#topButton').removeClass('clicked');
+            showAll = true;
+            updateDisplayNow();
+        }
     });
 
     $.each(configData.prestige, function(i, item) {
@@ -309,24 +318,6 @@ function loadConfig() {
 
 $(document).ready(function () {
     loadConfig();
-    $('#filterButton').click(function() {
-        let filterButtons = $('.filterButtons');
-        if (filterButtons.is(':visible')) {
-            filterButtons.slideUp();
-        }
-        else {
-            filterButtons.slideDown();
-        }
-    });
-    $('#optionsButton').click(function() {
-        let optionsButtons = $('.optionsButtons');
-        if (optionsButtons.is(':visible')) {
-            optionsButtons.slideUp();
-        }
-        else {
-            optionsButtons.slideDown();
-        }
-    });
     $('#maxPlayersInput').change(function() {
         maxPlayersTotal = $(this).val();
     });
@@ -337,5 +328,33 @@ $(document).ready(function () {
         else {
             clearInterval(document.updatePlayersTimeout);
         }
+    });
+    $('#lockCurrentButton').click(function() {
+        $('#lockGlobalButton').removeClass('clicked');
+        if ($(this).hasClass('clicked')) {
+            lock = 0;
+            $(this).removeClass('clicked');
+        }
+        else {
+            lock = 1;
+            $(this).addClass('clicked');
+            clearInterval(document.updateDisplayTimer);
+        }
+        $('#topButton, #allButton').css('filter', 'grayscale(0)');
+        updateDisplayNow();
+    });
+    $('#lockGlobalButton').click(function() {
+        $('#lockCurrentButton').removeClass('clicked');
+        if ($(this).hasClass('clicked')) {
+            lock = 0;
+            $(this).removeClass('clicked');
+            $('#topButton, #allButton').css('filter', 'grayscale(0)');
+        }
+        else {
+            lock = 2;
+            $(this).addClass('clicked');
+            $('#topButton, #allButton').css('filter', 'grayscale(1)');
+        }
+        updateDisplayNow();
     });
 });

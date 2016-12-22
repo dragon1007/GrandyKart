@@ -9,8 +9,8 @@ and open the template in the editor.
 */
 
 body {
-    height: 1920px;
-    width: 1080px;
+    height: 1080px;
+    width: 2436px;
     background: #000000;
     color: #FABE1B; 
     font-family: 'Bebas Neue';
@@ -20,33 +20,33 @@ body {
 .racerOverlay {
     position: absolute;
     height: 340px;
-    width: 292px;
+    width: 288px;
     overflow: hidden;
 }
 
 .racerOverlay1 {
-    left: 746px;
-    top: 653px;
+    left: 730px;
+    top: 633px;
 }
 .racerOverlay2 {
-    left: 430px;
-    top: 653px;
+    left: 420px;
+    top: 633px;
 }
 .racerOverlay3 {
-    left: 114px;
-    top: 653px;
+    left: 110px;
+    top: 633px;
 }
 .racerOverlay4 {
-    left: 1062px;
-    top: 284px;
+    left: 1040px;
+    top: 264px;
 }
 .racerOverlay5 {
-    left: 746px;
-    top: 284px;
+    left: 730px;
+    top: 264px;
 }
 .racerOverlay6 {
-    left: 430px;
-    top: 284px;
+    left: 420px;
+    top: 264px;
 }
 
 .newPlayerPopup {
@@ -63,17 +63,18 @@ body {
 .controls {
     position: absolute;
     width: 476px;
-    left: 1474px;
-    top: 700px;
+    left: 1960px;
+    top: 78px;
+    font-size: 76px;
+}
+
+input[type=checkbox] {
+    -webkit-transform: scale(4);
 }
 
 .button {
     border: 1px solid #FABE1B;
     text-align: center;
-}
-
-.filterButtons {
-    display: none;
 }
 
 .filter {
@@ -103,8 +104,28 @@ body {
     float: right;
 }
 
+#maxPlayersInput {
+    float: right;
+}
+
+#readFile {
+    float: right;
+}
+
+.lockBoardButtons {
+    width: 100%;
+}
+
+.lockBoardButton {
+    display: inline-block;
+    width: 47%;
+}
+
+#lockGlobalButton {
+    float: right;
+}
+
 .optionsButtons {
-    display: none;
     margin-top: 6px;
 }
 
@@ -118,7 +139,7 @@ input {
 
 .leaderboard {
     position: absolute;
-    left: 1474px;
+    left: 1446px;
     top: 78px;
 }
 
