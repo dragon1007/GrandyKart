@@ -150,6 +150,9 @@ function updateDisplay(fadeArg = undefined) {
             }
             d.append(t);
         }
+        if (d.children().length < 1) {
+            d.append('<div style="font-style: italic; text-align: center; margin-top: 19px;">No players found</div>');
+        }
         currentPage += 1;
         if ((currentPage * maxPlayersPerPage) > sorted.length - 1) {
             currentPage = 0;
