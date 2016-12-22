@@ -192,7 +192,7 @@ function updatePlayers(initial = false) {
 }
 
 function updateGlobal() {
-    if (apiSocket.readyState == 1) {
+    if ((apiSocket.readyState == 1) && (currentUserRequest == 0)) {
         apiSocket.send('api|get_users_count');
     }
 }
@@ -203,12 +203,16 @@ let globalTempArray = [];
 
 function socketResponse(event) {
     var response = JSON.parse(event.data);
+    if ((response.function == "register") && (msg == "success")) {
+        if (apiSocket.readyState == 1) {
+            apiSocket.send('api|get_users_count');
+        }
+    }
     if (response.function == "get_users_count") {
         if (apiSocket.readyState == 1) {
             totalUsers = response.msg;
             apiSocket.send('api|get_users|0');
             currentUserRequest = 0;
-//            apiSocket.send('api|get_users|0|' + response.msg);
         }
     }
     if (response.function == "get_users") {
@@ -223,11 +227,8 @@ function socketResponse(event) {
         else {
             console.log('Done adding users');
             globalPlayers = globalTempArray;
+            currentUserRequest = 0;
         }
-/*        let sorted = response.msg.sort(apiResultSort).slice(0,maxPlayersTotal);
-        $.each(sorted, function (i, user) {
-            globalPlayers[user.user] = {"name": user.user, "prestige": user.vip, "keys": user.points};
-        });*/
     }
 }
 
