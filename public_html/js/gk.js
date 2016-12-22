@@ -214,7 +214,9 @@ function socketResponse(event) {
     if (response.function == "get_users") {
         currentUserRequest += 100;
         if (currentUserRequest < totalUsers) {
-            globalPlayers[user.user]  = {"name": user.user, "prestige": user.vip, "keys": user.points};
+            $.each(response.msg, function (i, user) {
+                globalTempArray[user.user] = {"name": user.user, "prestige": user.vip, "keys": user.points};
+            });
             apiSocket.send('api|get_users|' + currentUserRequest);
             console.log('Added 100 users');
         }
