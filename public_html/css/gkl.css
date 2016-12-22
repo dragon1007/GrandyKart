@@ -104,11 +104,8 @@ input[type=checkbox] {
     float: right;
 }
 
-#maxPlayersInput {
-    float: right;
-}
-
 #readFile {
+    margin-top: 36px;
     float: right;
 }
 

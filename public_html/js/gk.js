@@ -24,6 +24,9 @@ let displayGlobal = false;
 let racerFilter = -1;
 let showAll = false;
 let usersToIgnore;
+let currentUserRequest = 0;
+let totalUsers;
+let globalTempArray = [];
 let lock = 0;
 
 function sortPrestige(a, b) {
@@ -91,7 +94,7 @@ function updateDisplay(fadeArg = undefined) {
     let global = (lock == 2) || ((lock != 1) && (displayGlobal));
     if (global) {
         if (leaderBoard.text() == 'Current Players') {
-            leaderBoard.fadeOut(function() { $(this).finish().text('Global Leaders'); }).fadeIn();
+            leaderBoard.fadeOut(function() { $(this).finish().text('Global Leaders'); });
         }
         Object.keys(globalPlayers).forEach(function (key) {
             playerArray.push(this[key]);
@@ -99,7 +102,7 @@ function updateDisplay(fadeArg = undefined) {
     }
     else {
         if (leaderBoard.text() == 'Global Leaders') {
-            leaderBoard.fadeOut(function() { $(this).text('Current Players'); }).fadeIn();
+            leaderBoard.fadeOut(function() { $(this).text('Current Players'); });
         }
         Object.keys(players).forEach(function (key) {
             playerArray.push(this[key]);
@@ -145,6 +148,7 @@ function updateDisplay(fadeArg = undefined) {
             currentPage = 0;
             displayGlobal = !displayGlobal;
         }
+        leaderBoard.fadeIn();
         fade ? d.fadeIn() : d.show();
     };
     fade ? d.fadeOut(update) : d.hide(0,update);
@@ -194,11 +198,6 @@ function updateGlobal() {
     }
 }
 
-let currentUserRequest = 0;
-let totalUsers;
-let globalTempArray = [];
-
-
 function socketResponse(event) {
     let response = JSON.parse(event.data);
     if ((response.function == "register") && (response.msg == "success")) {
@@ -214,20 +213,20 @@ function socketResponse(event) {
         }
     }
     if (response.function == "get_users") {
+        $.each(response.msg, function (i, user) {
+            if (usersToIgnore.includes(user.user.toLowerCase()) == false) {
+                if (user.vip == 10) { user.vip = 0; }
+                globalTempArray[user.user] = {"name": user.user,
+                    "prestige": {
+                    "level": user.vip,
+                    "name": prestige[user.vip].name,
+                    "image": prestige[user.vip].image
+                },
+                "keys": user.points};
+            }
+        });
         currentUserRequest += 100;
         if (currentUserRequest < totalUsers) {
-            $.each(response.msg, function (i, user) {
-                if (usersToIgnore.includes(user.user.toLowerCase()) == false) {
-                    if (user.vip == 10) { user.vip = 0; }
-                    globalTempArray[user.user] = {"name": user.user,
-                        "prestige": {
-                            "level": user.vip,
-                            "name": prestige[user.vip].name,
-                            "image": prestige[user.vip].image
-                        },
-                        "keys": user.points};
-                }
-            });
             apiSocket.send('api|get_users|' + currentUserRequest);
         }
         else {
@@ -255,7 +254,6 @@ function loadConfig() {
     nameLength = configData.nameLength;
     maxPlayersPerPage = configData.maxPlayersPerPage;
     maxPlayersTotal = configData.maxPlayersTotal;
-    $('#maxPlayersInput').val(maxPlayersTotal);
     updatePlayersSpeed = configData.updatePlayersSpeed;
     scrollSpeed = configData.scrollSpeed;
     globalUpdateSpeed = configData.globalUpdateSpeed;
@@ -318,9 +316,6 @@ function loadConfig() {
 
 $(document).ready(function () {
     loadConfig();
-    $('#maxPlayersInput').change(function() {
-        maxPlayersTotal = $(this).val();
-    });
     $('#readFile').change(function() {
         if (this.checked) {
             document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
