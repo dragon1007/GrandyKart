@@ -197,19 +197,35 @@ function updateGlobal() {
     }
 }
 
+let currentUserRequest = 0;
+let totalUsers;
+let globalTempArray = [];
+
 function socketResponse(event) {
     var response = JSON.parse(event.data);
     if (response.function == "get_users_count") {
         if (apiSocket.readyState == 1) {
-            apiSocket.send('api|get_users|0|' + response.msg);
+            totalUsers = response.msg;
+            apiSocket.send('api|get_users|0');
+            currentUserRequest = 0;
+//            apiSocket.send('api|get_users|0|' + response.msg);
         }
     }
     if (response.function == "get_users") {
-        let sorted = response.msg.sort(apiResultSort).slice(0,maxPlayersTotal);
+        currentUserRequest += 100;
+        if (currentUserRequest < totalUsers) {
+            globalPlayers[user.user]  = {"name": user.user, "prestige": user.vip, "keys": user.points};
+            apiSocket.send('api|get_users|' + currentUserRequest);
+            console.log('Added 100 users');
+        }
+        else {
+            console.log('Done adding users');
+            globalPlayers = globalTempArray;
+        }
+/*        let sorted = response.msg.sort(apiResultSort).slice(0,maxPlayersTotal);
         $.each(sorted, function (i, user) {
-            console.log(user.user);
             globalPlayers[user.user] = {"name": user.user, "prestige": user.vip, "keys": user.points};
-        });
+        });*/
     }
 }
 
