@@ -1,0 +1,30 @@
+{
+  "jsonFile": "resources/testdata.json",
+  "nameLength": 14,
+  "maxPlayersPerPageGlobal": 10,
+  "maxPlayersTotalGlobal": 30,
+  "maxPlayersPerPageCurrent": 10,
+  "maxPlayersTotalCurrent": 30,
+  "updatePlayersSpeed": 5,
+  "scrollSpeed": 5,
+  "globalUpdateSpeed": 10,
+  "newPlayerPopupTime": 1.2,
+  "apiSecret": "",
+  "racers": [
+    { "displayName": "Bowser", "image": "images/Bowser.png" },
+    { "displayName": "Wario", "image": "images/Wario.png" },
+    { "displayName": "D.K.", "image": "images/DK.png" },
+    { "displayName": "Yoshi", "image": "images/Yoshi.png" },
+    { "displayName": "Toad", "image": "images/Toad.png" },
+    { "displayName": "Peach", "image": "images/Peach.png" },
+    { "displayName": "Luigi", "image": "images/Luigi.png" },
+    { "displayName": "Mario", "image": "images/Mario.png" }
+  ],
+  "prestige": [
+    { "displayName": "Mushroom", "image": "images/Mushroom.png" },
+    { "displayName": "Flower", "image": "images/Flower.png" },
+    { "displayName": "Leaf", "image": "images/Leaf.png" },
+    { "displayName": "Feather", "image": "images/Feather.png" },
+    { "displayName": "Star", "image": "images/Star.png" }
+  ]
+}

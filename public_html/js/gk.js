@@ -6,8 +6,10 @@
 
 let jsonFile;
 let nameLength;
-let maxPlayersPerPage;
-let maxPlayersTotal;
+let maxPlayersPerPageGlobal;
+let maxPlayersTotalGlobal;
+let maxPlayersPerPageCurrent;
+let maxPlayersTotalCurrent;
 let updatePlayersSpeed;
 let scrollSpeed;
 let globalUpdateSpeed;
@@ -91,7 +93,11 @@ function updateDisplay(fadeArg = undefined) {
     let playerArray = [];
     let leaderBoard = $('.leaderboardHeader');
     let global = (lock == 2) || ((lock != 1) && (displayGlobal));
+    let maxPlayersPerPage;
+    let maxPlayersTotal;
     if (global) {
+        maxPlayersPerPage = maxPlayersPerPageGlobal
+        maxPlayersTotal = maxPlayersTotalGlobal;
         if (leaderBoard.text() == 'Current Players') {
             leaderBoard.fadeOut(function() { $(this).finish().text('Global Leaders'); });
         }
@@ -106,6 +112,8 @@ function updateDisplay(fadeArg = undefined) {
         }, globalPlayers);
     }
     else {
+        maxPlayersPerPage = maxPlayersPerPageCurrent;
+        maxPlayersTotal = maxPlayersTotalCurrent;
         if (leaderBoard.text() == 'Global Leaders') {
             leaderBoard.fadeOut(function() { $(this).text('Current Players'); });
         }
@@ -243,8 +251,10 @@ function socketResponse(event) {
 function loadConfig() {
     /** * @property {string} jsonFile - relative filename of Players file */
     /** * @property {number} nameLength - number of characters to allow for player names before truncating */
-    /** * @property {number} maxPlayersPerPage - number of players to display on each page of the leaderboard */
-    /** * @property {number} maxPlayersTotal - total number of players to display on all pages of leaderboard */
+    /** * @property {number} maxPlayersPerPageGlobal - number of players to display on each page of the global leaderboard */
+    /** * @property {number} maxPlayersTotalGlobal - total number of players to display on all pages of global leaderboard */
+    /** * @property {number} maxPlayersPerPageCurrent - number of players to display on each page of the current leaderboard */
+    /** * @property {number} maxPlayersTotalCurrent - total number of players to display on all pages of current leaderboard */
     /** * @property {number} updatePlayersSpeed - how often to update Player data, in seconds (decimals allowed) */
     /** * @property {number} scrollSpeed - how often to change pages of the leaderboard in seconds (decimals allowed) */
     /** * @property {number} globalUpdateSpeed - how often to poll the API for the global leaderboard stats, in seconds (decimals allowed) */
@@ -256,8 +266,10 @@ function loadConfig() {
     $.getJSON("resources/config.json", function(configData) {
     jsonFile = configData.jsonFile;
     nameLength = configData.nameLength;
-    maxPlayersPerPage = configData.maxPlayersPerPage;
-    maxPlayersTotal = configData.maxPlayersTotal;
+    maxPlayersPerPageGlobal = configData.maxPlayersPerPageGlobal;
+    maxPlayersTotalGlobal = configData.maxPlayersTotalGlobal;
+    maxPlayersPerPageCurrent = configData.maxPlayersPerPageCurrent;
+    maxPlayersTotalCurrent = configData.maxPlayersTotalCurrent;
     updatePlayersSpeed = configData.updatePlayersSpeed;
     scrollSpeed = configData.scrollSpeed;
     globalUpdateSpeed = configData.globalUpdateSpeed;
