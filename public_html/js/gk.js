@@ -139,8 +139,9 @@ function updateDisplay(fadeArg = undefined) {
             else {
                 let t = '<div><div class="numberDiv">' + (i + 1) + '.</div> ';
                 if (players[player.name] !== undefined) {
-                    t = t + '<img class="racerImage" src="' + players[player.name].racer.image + '" alt="' + players[player.name].racer.name + '" /> <img class="prestigeImage" src="' + players[player.name].prestige.image + '" alt="' + players[player.name].prestige.name + '" /> ';
+                    t = t + '<img class="racerImage" src="' + players[player.name].racer.image + '" alt="' + players[player.name].racer.name + '" /> ';
                 }
+            t = t + '<img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ';
                 t = t + '<span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span><span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>';
                 d.append(t);
             }
@@ -200,10 +201,12 @@ function updateGlobal() {
 let currentUserRequest = 0;
 let totalUsers;
 let globalTempArray = [];
+let usersToIgnore;
+
 
 function socketResponse(event) {
     var response = JSON.parse(event.data);
-    if ((response.function == "register") && (msg == "success")) {
+    if ((response.function == "register") && (response.msg == "success")) {
         if (apiSocket.readyState == 1) {
             apiSocket.send('api|get_users_count');
         }
@@ -219,7 +222,9 @@ function socketResponse(event) {
         currentUserRequest += 100;
         if (currentUserRequest < totalUsers) {
             $.each(response.msg, function (i, user) {
-                globalTempArray[user.user] = {"name": user.user, "prestige": user.vip, "keys": user.points};
+                if (usersToIgnore.includes(user.user) == false) {
+                    globalTempArray[user.user] = {"name": user.user, "prestige": user.vip, "keys": user.points};
+                }
             });
             apiSocket.send('api|get_users|' + currentUserRequest);
             console.log('Added 100 users');
@@ -242,6 +247,7 @@ function loadConfig() {
     /** * @property {number} globalUpdateSpeed - how often to poll the API for the global leaderboard stats, in seconds (decimals allowed) */
     /** * @property {number} newPlayerPopupTime - how long to display the popup when players enter, in seconds (decimals allowed) */
     /** * @property {string} apiSecret - DeepBot API key */
+    /** * @property {string[]} usersToIgnore - users to not include in the Global Leaderboard */
     /** * @property {{displayName: string, image: string}} racers */
     /** * @property {{displayName: string, image: string}} prestige */
     $.getJSON("resources/config.json", function(configData) {
@@ -254,6 +260,7 @@ function loadConfig() {
     scrollSpeed = configData.scrollSpeed;
     globalUpdateSpeed = configData.globalUpdateSpeed;
     newPlayerPopupTime = configData.newPlayerPopupTime;
+    usersToIgnore = configData.usersToIgnore;
     apiSecret = configData.apiSecret;
     apiSocket = new WebSocket("ws://localhost:3337");
     apiSocket.onopen = function() {apiSocket.send('api|register|' + apiSecret)};
