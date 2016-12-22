@@ -23,6 +23,7 @@ let apiSocket;
 let displayGlobal = false;
 let racerFilter = -1;
 let showAll = false;
+let usersToIgnore;
 
 function sortPrestige(a, b) {
     if (a.prestige.level > b.prestige.level) { return -1; }
@@ -177,7 +178,6 @@ function updateGlobal() {
 let currentUserRequest = 0;
 let totalUsers;
 let globalTempArray = [];
-let usersToIgnore;
 
 
 function socketResponse(event) {
@@ -243,10 +243,6 @@ function loadConfig() {
     globalUpdateSpeed = configData.globalUpdateSpeed;
     newPlayerPopupTime = configData.newPlayerPopupTime;
     usersToIgnore = configData.usersToIgnore;
-    apiSecret = configData.apiSecret;
-    apiSocket = new WebSocket("ws://localhost:3337");
-    apiSocket.onopen = function() {apiSocket.send('api|register|' + apiSecret)};
-    apiSocket.onmessage = socketResponse;
 
     $.each(configData.racers, function(i, item) {
       racers.push({"name": item.displayName, "image": item.image});
@@ -286,7 +282,13 @@ function loadConfig() {
       prestige.push({"name": item.displayName, "image": item.image});
     });
 
-    updatePlayers(true);
+    apiSecret = configData.apiSecret;
+    apiSocket = new WebSocket("ws://localhost:3337");
+    apiSocket.onopen = function() {apiSocket.send('api|register|' + apiSecret)};
+    apiSocket.onmessage = socketResponse;
+
+
+        updatePlayers(true);
     document.updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
     document.updateOverlaysTimer = setInterval(updateOverlays, 3000);
     document.updateGlobalTimer = setInterval(updateGlobal, globalUpdateSpeed * 1000);
