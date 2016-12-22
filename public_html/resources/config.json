@@ -8,6 +8,7 @@
   "updatePlayersSpeed": 5,
   "scrollSpeed": 5,
   "globalUpdateSpeed": 10,
+  "usersToIgnore": ["grandkeys","grandybot"],
   "newPlayerPopupTime": 1.2,
   "apiSecret": "",
   "racers": [
