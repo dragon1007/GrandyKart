@@ -5,74 +5,55 @@
  */
 
 
-var MAXSECONDS;
+let MAXSECONDS;
 
-var MOVEFACTOR;
-var CHARSDIV;
-var TIMEDIV;
-var LEVELDIV;
-var DIVS = [];
-var PLACELOOKUP = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7};
+let MOVEFACTOR;
+let CHARSDIV;
+let TIMEDIV;
+let LEVELDIV;
+let DIVS = [];
+let PLACELOOKUP = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7};
 
-var currentWins = 0;
-var time = 45 * 60;
-var total = 45 * 60;
-var running = false;
-var interval;
+let currentWins = 0;
+let running = false;
+let interval;
+let time = 0;
 
-var audioLosses = [
-    new Audio('audio/Bowser Lose.wav'),
-    new Audio('audio/Wario Lose.wav'),
-    new Audio('audio/DK Lose.wav'),
-    new Audio('audio/Yoshi Lose.wav'),
-    new Audio('audio/Toad Lose.wav'),
-    new Audio('audio/Peach Lose.wav'),
-    new Audio('audio/Luigi Lose.wav')
-];
-var audioWins = [
-    new Audio('audio/Wario Win.wav'),
-    new Audio('audio/DK Win.wav'),
-    new Audio('audio/Yoshi Win.wav'),
-    new Audio('audio/Toad Win.wav'),
-    new Audio('audio/Peach Win.wav'),
-    new Audio('audio/Luigi Win.wav'),
-    new Audio('audio/Mario Win.wav')
-];
+let audioLosses = [];
+let audioWins = [];
 
-var levelWon = [];
-var levelTime = [];
-var numOfLevels = 0;
-var lastTime = 0;
-var racers = [];
-var totalKeys = 0;
+let levelWon = [];
+let levelTime = [];
+let numOfLevels = 0;
+let lastTime = 0;
+let racers = [];
+let totalKeys = 0;
 
 function updateTime() {
     if (!running)
         return;
-    var timepassed = MAXSECONDS - time;
-    var left = MOVEFACTOR * timepassed;
+    let timepassed = MAXSECONDS - time;
+    let left = MOVEFACTOR * timepassed;
 
     CHARSDIV.css("transform", "TranslateX(" + left + "px)");
     time = time - 1;
     TIMEDIV.text(getFormatTime(time));
-    if (time > 0) {
-//        setInterval(updateTime, 1000);
-    } else {
+    if (time < 1 ) {
         flashWinner();
+        clearInterval(interval);
     }
 }
 
 function getFormatTime(seconds) {
-    var min = Math.floor(seconds / 60);
+    let min = Math.floor(seconds / 60);
     min = min < 10 ? "0" + min : min;
-    var sec = seconds % 60;
+    let sec = seconds % 60;
     sec = sec < 10 ? "0" + sec : sec;
     return min + ":" + sec;
 }
 
 function flashWinner() {
-    var audio = new Audio('audio/Race Finish.wav');
-    audio.play();
+    finishAudio.play();
     function doFlash(i) {
         TIMEDIV.css("color", (i % 2 == 0 ? "red" : "yellow"));
         if (i < 12) {
@@ -88,12 +69,12 @@ function flashWinner() {
 }
 
 function showResult() {
-    var place = PLACELOOKUP[currentWins];
+    let place = PLACELOOKUP[currentWins];
     place = typeof place === 'undefined' ? DIVS.length - 1 : place;
 
-    var p1;
-    var p2;
-    var p3;
+    let p1;
+    let p2;
+    let p3;
     if (place == 0) {
         p1 = DIVS[DIVS.length - 1].attr("src");
         p2 = DIVS[DIVS.length - 2].attr("src");
@@ -104,21 +85,22 @@ function showResult() {
         p3 = DIVS[2].attr("src");
     } else {
 
-        var p3 = DIVS[(DIVS.length - place - 2) % DIVS.length].attr("src");
-        var p2 = DIVS[(DIVS.length - place) % DIVS.length].attr("src");
-        var p1 = DIVS[(DIVS.length - place - 1) % DIVS.length].attr("src");
+        p3 = DIVS[(DIVS.length - place - 2) % DIVS.length].attr("src");
+        p2 = DIVS[(DIVS.length - place) % DIVS.length].attr("src");
+        p1 = DIVS[(DIVS.length - place - 1) % DIVS.length].attr("src");
     }
     $("#score1").css("background-image", "url(" + p1 + ")");
     $("#score2").css("background-image", "url(" + p2 + ")");
     $("#score3").css("background-image", "url(" + p3 + ")");
-    $("#result").css("height", "220px");
-    $("#result").animate({opacity: 1}, 800, "linear").delay(4000)
+    let result = $("#result");
+    result.css("height", "220px");
+    result.animate({opacity: 1}, 800, "linear").delay(4000)
             .animate({opacity: 0}, 800, "linear");
 }
 
 function setPositions() {
 
-    var place = PLACELOOKUP[currentWins];
+    let place = PLACELOOKUP[currentWins];
     place = typeof place === 'undefined' ? DIVS.length - 1 : place;
     if (place < DIVS.length) {
         tempDisableButtons();
@@ -128,8 +110,8 @@ function setPositions() {
             DIVS[(DIVS.length - place + 1) % DIVS.length].css("z-index", "2");
         }, 2200);
         if (place != DIVS.length - 1) {
-            for (var i = 0; i < DIVS.length; i++) {
-                var pos = (place + i) % DIVS.length;
+            for (let i = 0; i < DIVS.length; i++) {
+                let pos = (place + i) % DIVS.length;
                 if (pos > 0 && pos < DIVS.length - 1 && place != 0) {
                     DIVS[i].animate({left: ((pos - 1)
                                 % DIVS.length) * 50 + "px"}, 2000, "linear");
@@ -143,8 +125,8 @@ function setPositions() {
                 }
             }
         } else {
-            for (var i = 0; i < DIVS.length; i++) {
-                var pos = (place + i) % DIVS.length;
+            for (let i = 0; i < DIVS.length; i++) {
+                let pos = (place + i) % DIVS.length;
                 if (pos > 1 && pos < DIVS.length - 1) {
                     DIVS[i].animate({left: ((pos - 2)
                                 % DIVS.length) * 50 + "px"}, 2000, "linear");
@@ -163,33 +145,34 @@ function swapFirst() {
     levelStats(true);
     LEVELDIV.text("levels: " + (++currentWins));
     if (PLACELOOKUP[currentWins] < DIVS.length) {
-
         showRacers();
         setTimeout(setPositions, 2000);
-
     }
     playAudio();
 }
 
 function showRacers() {
-    var place = PLACELOOKUP[currentWins];
+    let place = PLACELOOKUP[currentWins];
     if (currentWins != 0 && PLACELOOKUP[currentWins - 1] != place) {
-        var p2 = DIVS[(DIVS.length - place) % DIVS.length].attr("src");
-        var p1 = DIVS[(DIVS.length - place - 1) % DIVS.length].attr("src");
-        var R1 = $("#R1").parent();
-        var R2 = $("#R2").parent();
-        $("#R1").css("background-image", "url(" + p1 + ")");
-        $("#R2").css("background-image", "url(" + p2 + ")");
-        $("#race").css("height", "230px");
-        $("#race").animate({opacity: 1}, 900, function () {
-            R1.animate({left: "+=800px"}, 2500);
-            R2.animate({left: "-=1200px"}, 2500,
+        let p2 = DIVS[(DIVS.length - place) % DIVS.length].attr("src");
+        let p1 = DIVS[(DIVS.length - place - 1) % DIVS.length].attr("src");
+        let R1 = $("#R1");
+        let R2 = $("#R2");
+        let R1p = R1.parent();
+        let R2p = R2.parent();
+        let race = $("#race");
+        R1.css("background-image", "url(" + p1 + ")");
+        R2.css("background-image", "url(" + p2 + ")");
+        race.css("height", "230px");
+        race.animate({opacity: 1}, 900, function () {
+            R1p.animate({left: "+=800px"}, 2500);
+            R2p.animate({left: "-=1200px"}, 2500,
                     function () {
-                        $("#race").animate({opacity: 0}, 600, "linear",
+                        race.animate({opacity: 0}, 600, "linear",
                                 function () {
-                                    R1.css("left", "-=800px");
-                                    R2.css("left", "+=1200px");
-                                    $("#race").css("height", "0px");
+                                    R1p.css("left", "-=800px");
+                                    R2p.css("left", "+=1200px");
+                                    race.css("height", "0px");
                                 });
                     });
 
@@ -262,8 +245,7 @@ function startTimer() {
         tempDisableButtons();
         running = true;
         interval = setInterval(updateTime, 1000);
-        var audio = new Audio('audio/Race Start.wav');
-        audio.play();
+        startAudio.play();
     }
 }
 
@@ -280,12 +262,12 @@ function skipLevel() {
 }
 
 function levelStats(won) {
-    var timepassed = MAXSECONDS - time;
+    let timepassed = MAXSECONDS - time;
     levelTime[numOfLevels] = timepassed - lastTime;
     lastTime = timepassed;
     levelWon[numOfLevels++] = won;
-    var stats = "Levels played: " + numOfLevels;
-    for (var i = 0; i < numOfLevels; i++) {
+    let stats = "Levels played: " + numOfLevels;
+    for (let i = 0; i < numOfLevels; i++) {
         stats += " <br> Level " + (i + 1);
         if (levelWon[i]) {
             stats += " Completed in " + getFormatTime(levelTime[i]);
@@ -303,7 +285,32 @@ function levelStats(won) {
     setTimeout(function() {$("#dropdownStats").toggle("slow");},10000);
 }
 
-$(document).ready(function () {
+function load() {
+    $.getJSON("resources/config.json", function (configData) {
+        let keysPerEntry = 0;
+        jsonFile = configData.jsonFile;
+        keysPerEntry = configData.keysPerEntry;
+        MAXSECONDS = configData.timeLimitMinutes * 60;
+        startAudio = new Audio(configData.startAudio);
+        finishAudio = new Audio(configData.finishAudio);
+        racers = [];
+        $.each(configData.racers, function (i, item) {
+            racers.push({"name": item.displayName, "image": item.image, "count": 0});
+            if (item.audioLoss !== undefined) { audioLosses.push(new Audio(item.audioLoss)); }
+            if (item.audioWin !== undefined) { audioWins.push(new Audio(item.audioWin)); }
+        });
+        $.get(jsonFile, function (data) {
+            let keysData = JSON.parse(data.slice(0, -1) + "]");
+            for (let i = 0; i < keysData.length; i++) {
+                racers[keysData[i].racer].count++;
+            }
+            totalKeys = keysData.length * keysPerEntry;
+       });
+    });
+    MOVEFACTOR = 1070 / MAXSECONDS;
+
+    time = MAXSECONDS * 60;
+
     $("#start").click(startTimer);
     //$("#stop").click(showResult);
     $("#stop").click(stopTimer);
@@ -316,26 +323,8 @@ $(document).ready(function () {
     TIMEDIV = $("#timer");
     LEVELDIV = $("#completed");
     DIVS = [$("#7"), $("#6"), $("#5"), $("#4"), $("#3"), $("#2"), $("#1"), $("#0")];
+}
+
+$(document).ready(function () {
     load();
 });
-
-function load() {
-    var keysPerEntry = 0;
-    $.getJSON("resources/config.json", function (configData) {
-        jsonFile = configData.jsonFile;
-        keysPerEntry = configData.keysPerEntry;
-        MAXSECONDS = configData.timeLimitMinutes * 60;
-        racers = [];
-        $.each(configData.racers, function (i, item) {
-            racers.push({"name": item.displayName, "image": item.image, "count": 0});
-        });
-    });
-    $.get(jsonFile, function (data) {
-        var keysData = JSON.parse(data.slice(0, -1) + "]");
-        for (var i = 0; i < keysData.length; i++) {
-            racers[keysData[i].racer].count++;
-        }
-        totalKeys = keysData.length * keysPerEntry;
-    });
-    MOVEFACTOR = 1150 / MAXSECONDS;    
-}

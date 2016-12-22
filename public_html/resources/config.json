@@ -6,14 +6,16 @@
   "scrollSpeed": 5,
   "keysPerEntry": 1000,
   "timeLimitMinutes": 45,
+  "startAudio": "audio/Race Start.wav",
+  "startFinish": "audio/Race Finish.wav",
   "racers": [
-    { "displayName": "Bowser", "image": "images/Bowser.png" },
-    { "displayName": "Wario", "image": "images/Wario.png" },
-    { "displayName": "D.K.", "image": "images/DK.png" },
-    { "displayName": "Yoshi", "image": "images/Yoshi.png" },
-    { "displayName": "Toad", "image": "images/Toad.png" },
-    { "displayName": "Peach", "image": "images/Peach.png" },
-    { "displayName": "Luigi", "image": "images/Luigi.png" },
+    { "displayName": "Bowser", "image": "images/Bowser.png", "audioLoss": "audio/Bowser Lose.wav", "audioWin": "audio/Wario Win.wav" },
+    { "displayName": "Wario", "image": "images/Wario.png", "audioLoss": "audio/Wario Lose.wav", "audioWin": "audio/DK Win.wav" },
+    { "displayName": "D.K.", "image": "images/DK.png", "audioLoss": "audio/DK Lose.wav", "audioWin": "audio/Yoshi Win.wav" },
+    { "displayName": "Yoshi", "image": "images/Yoshi.png", "audioLoss": "audio/Yoshi Lose.wav", "audioWin": "audio/Toad Win.wav" },
+    { "displayName": "Toad", "image": "images/Toad.png", "audioLoss": "audio/Toad Lose.wav", "audioWin": "audio/Peach Win.wav" },
+    { "displayName": "Peach", "image": "images/Peach.png", "audioLoss": "audio/Peach Lose.wav", "audioWin": "audio/Luigi Win.wav" },
+    { "displayName": "Luigi", "image": "images/Luigi.png", "audioLoss": "audio/Luigi Lose.wav", "audioWin": "audio/Mario Win.wav" },
     { "displayName": "Mario", "image": "images/Mario.png" }
   ],
   "prestige": [
