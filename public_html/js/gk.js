@@ -13,7 +13,7 @@ let scrollSpeed;
 let globalUpdateSpeed;
 let newPlayerPopupTime;
 let racers = [];
-let prestige = [];
+let prestige = [{"level": 0, "name": "", "image": ""}];
 let currentPage = 0;
 let players = [];
 let newPlayerQueue = [];
@@ -111,14 +111,21 @@ function updateDisplay(fadeArg = undefined) {
         for (let i = currentPage * maxPlayersPerPage; i < (currentPage + 1) * maxPlayersPerPage && sorted[i] !== undefined; i++) {
             let player = sorted[i];
             if (displayGlobal == false) {
-                d.append('<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> <img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> <span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span><span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>');
+                let t = '<div><div class="numberDiv">' + (i + 1) + '.</div> <img class="racerImage" src="' + player.racer.image + '" alt="' + player.racer.name + '" /> ';
+                if (player.prestige.level > 0) {
+                    t = t + '<img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ';
+                }
+                t = t + '<span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span><span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>';
+                d.append(t);
             }
             else {
                 let t = '<div><div class="numberDiv">' + (i + 1) + '.</div> ';
                 if (players[player.name] !== undefined) {
                     t = t + '<img class="racerImage" src="' + players[player.name].racer.image + '" alt="' + players[player.name].racer.name + '" /> ';
                 }
-            t = t + '<img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ';
+                if (player.prestive.level > 0) {
+                    t = t + '<img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ';
+                }
                 t = t + '<span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span><span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>';
                 d.append(t);
             }
