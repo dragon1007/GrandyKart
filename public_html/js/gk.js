@@ -79,19 +79,20 @@ function updateOverlays() {
 function updateDisplay(fadeArg = undefined) {
     let d = $("#racersDiv");
     let playerArray = [];
+    let leaderBoard = $('.leaderboardHeader');
     if (displayGlobal) {
-        if ($('.leaderboardHeader').text() == 'Current Players') {
-            $('.leaderboardHeader').fadeOut(function() { $(this).finish().text('Global Leaders'); }).fadeIn();
+        if (leaderBoard.text() == 'Current Players') {
+            leaderBoard.fadeOut(function() { $(this).finish().text('Global Leaders'); }).fadeIn();
         }
-        Object.keys(globalPlayers).forEach(function (key, index) {
+        Object.keys(globalPlayers).forEach(function (key) {
             playerArray.push(this[key]);
         }, globalPlayers);
     }
     else {
-        if ($('.leaderboardHeader').text() == 'Global Leaders') {
-            $('.leaderboardHeader').fadeOut(function() { $(this).text('Current Players'); }).fadeIn();
+        if (leaderBoard.text() == 'Global Leaders') {
+            leaderBoard.fadeOut(function() { $(this).text('Current Players'); }).fadeIn();
         }
-        Object.keys(players).forEach(function (key, index) {
+        Object.keys(players).forEach(function (key) {
             playerArray.push(this[key]);
         }, players);
     }
@@ -105,7 +106,7 @@ function updateDisplay(fadeArg = undefined) {
     if (showAll == false) {
         sorted = sorted.slice(0, maxPlayersTotal);
     }
-    let fade = fadeArg || sorted.length > maxPlayersPerPage;
+    let fade = true || fadeArg || sorted.length > maxPlayersPerPage;
     let update = function () {
         d.empty();
         for (let i = currentPage * maxPlayersPerPage; i < (currentPage + 1) * maxPlayersPerPage && sorted[i] !== undefined; i++) {
@@ -123,7 +124,7 @@ function updateDisplay(fadeArg = undefined) {
                 if (players[player.name] !== undefined) {
                     t = t + '<img class="racerImage" src="' + players[player.name].racer.image + '" alt="' + players[player.name].racer.name + '" /> ';
                 }
-                if (player.prestive.level > 0) {
+                if (player.prestige.level > 0) {
                     t = t + '<img class="prestigeImage" src="' + player.prestige.image + '" alt="' + player.prestige.name + '" /> ';
                 }
                 t = t + '<span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span><span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>';
@@ -136,7 +137,7 @@ function updateDisplay(fadeArg = undefined) {
             displayGlobal = !displayGlobal;
         }
         fade ? d.fadeIn() : d.show();
-    }
+    };
     fade ? d.fadeOut(update) : d.hide(0,update);
 }
 
@@ -158,7 +159,7 @@ function updatePlayers(initial = false) {
                         "image": prestige[keysData[i].prestige].image
                     },
                     "keys": keysData[i].keys
-                }
+                };
                 if (players[keysData[i].name] === undefined) {
                     newPlayerQueue[keysData[i].racer].push(player);
                 }
@@ -172,7 +173,9 @@ function updatePlayers(initial = false) {
         }
         catch(e) { }
     }).always(function() {
-        setTimeout(updatePlayers, updatePlayersSpeed * 1000);
+        if ($('#readFile').checked()) {
+            document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
+        }
     });
 }
 
@@ -188,7 +191,7 @@ let globalTempArray = [];
 
 
 function socketResponse(event) {
-    var response = JSON.parse(event.data);
+    let response = JSON.parse(event.data);
     if ((response.function == "register") && (response.msg == "success")) {
         if (apiSocket.readyState == 1) {
             apiSocket.send('api|get_users_count');
@@ -205,7 +208,7 @@ function socketResponse(event) {
         currentUserRequest += 100;
         if (currentUserRequest < totalUsers) {
             $.each(response.msg, function (i, user) {
-                if (usersToIgnore.includes(user.user) == false) {
+                if (usersToIgnore.includes(user.user.toLowerCase()) == false) {
                     if (user.vip == 10) { user.vip = 0; }
                     globalTempArray[user.user] = {"name": user.user,
                         "prestige": {
@@ -254,10 +257,11 @@ function loadConfig() {
 
     $.each(configData.racers, function(i, item) {
       racers.push({"name": item.displayName, "image": item.image});
-      newPlayerQueue.push(new Array());
+      newPlayerQueue.push([]);
       if (i > 0 && i < configData.racers.length - 1) {
-          $('.filterButtons').append('<img class="filter dim" src="' + item.image + '">')
-          $('.filterButtons').children().last().click(function () {
+          let filterButtons = $('.filterButtons');
+          filterButtons.append('<img class="filter dim" src="' + item.image + '">');
+          filterButtons.children().last().click(function () {
               $('.filter').removeClass('clicked');
               displayGlobal = false;
               currentPage = 0;
@@ -274,7 +278,7 @@ function loadConfig() {
           });
       }
     });
-    $('.filterButtons').append('<div class="showAllButtons"><div class="showAllButton button dim clicked" id="topButton">Top</div><div class="showAllButton button dim" id="allButton">All</div></div>')
+    $('.filterButtons').append('<div class="showAllButtons"><div class="showAllButton button dim clicked" id="topButton">Top</div><div class="showAllButton button dim" id="allButton">All</div></div>');
     $('#topButton').click(function() {
         $(this).addClass('clicked');
         $('#allButton').removeClass('clicked');
@@ -296,7 +300,7 @@ function loadConfig() {
     apiSocket.onmessage = socketResponse;
 
 
-        updatePlayers(true);
+    updatePlayers(true);
     document.updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
     document.updateOverlaysTimer = setInterval(updateOverlays, 3000);
     document.updateGlobalTimer = setInterval(updateGlobal, globalUpdateSpeed * 1000);
@@ -313,7 +317,7 @@ $(document).ready(function () {
         else {
             filterButtons.slideDown();
         }
-    })
+    });
     $('#optionsButton').click(function() {
         let optionsButtons = $('.optionsButtons');
         if (optionsButtons.is(':visible')) {
@@ -322,8 +326,16 @@ $(document).ready(function () {
         else {
             optionsButtons.slideDown();
         }
-    })
+    });
     $('#maxPlayersInput').change(function() {
         maxPlayersTotal = $(this).val();
+    });
+    $('#readFile').change(function() {
+        if (this.checked) {
+            document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
+        }
+        else {
+            clearInterval(document.updatePlayersTimeout);
+        }
     });
 });
