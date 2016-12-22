@@ -209,8 +209,7 @@ function socketResponse(event) {
         console.log(response.msg.length);
         let sorted = response.msg.sort(apiResultSort).slice(0,maxPlayersTotal);
         $.each(sorted, function (i, user) {
-            console.log('added');
-            globalPlayers[user.name] = {"name": user.user, "prestige": user.vip, "keys": user.points};
+            globalPlayers[user.user] = {"name": user.user, "prestige": user.vip, "keys": user.points};
         });
     }
 }
