@@ -309,7 +309,7 @@ function load() {
     });
     MOVEFACTOR = 1070 / MAXSECONDS;
 
-    time = MAXSECONDS * 60;
+    time = MAXSECONDS;
 
     $("#start").click(startTimer);
     //$("#stop").click(showResult);
