@@ -310,7 +310,10 @@ function load() {
     MOVEFACTOR = 1070 / MAXSECONDS;
 
     time = MAXSECONDS;
+}
 
+$(document).ready(function () {
+    load();
     $("#start").click(startTimer);
     //$("#stop").click(showResult);
     $("#stop").click(stopTimer);
@@ -323,8 +326,4 @@ function load() {
     TIMEDIV = $("#timer");
     LEVELDIV = $("#completed");
     DIVS = [$("#7"), $("#6"), $("#5"), $("#4"), $("#3"), $("#2"), $("#1"), $("#0")];
-}
-
-$(document).ready(function () {
-    load();
 });
