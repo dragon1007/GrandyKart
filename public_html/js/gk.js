@@ -367,4 +367,34 @@ $(document).ready(function () {
         }
         updateDisplayNow();
     });
+
+    $(document).keydown(function(e) {
+        //if (e.ctrlKey) {
+            if ((e.keyCode >= 48) && (e.keyCode <= 57)) {
+                let n = e.keyCode - 48;
+                $(".filterButtons > img:nth-child(" + n + ")").trigger('click');
+                return false;
+            }
+            if (e.keyCode == 65) {
+                $('#allButton').trigger('click');
+                return false;
+            }
+            if (e.keyCode == 67) {
+                $('#lockCurrentButton').trigger('click');
+                return false;
+            }
+            if (e.keyCode == 71) {
+                $('#lockGlobalButton').trigger('click');
+                return false;
+            }
+            if (e.keyCode == 84) {
+                $('#topButton').trigger('click');
+                return false;
+            }
+            if (e.keyCode == 85) {
+                $('#readFile').trigger('click');
+                return false;
+            }
+        //}
+    });
 });
