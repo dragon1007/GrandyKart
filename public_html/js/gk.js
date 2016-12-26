@@ -242,7 +242,17 @@ function socketResponse(event) {
             apiSocket.send('api|get_users|' + currentUserRequest);
         }
         else {
-            globalPlayers = globalTempArray;
+            Object.keys(globalTempArray).forEach(function (key) {
+                var item = globalTempArray[key];
+                if (globalPlayers[item.name] !== undefined) {
+                    if ((globalPlayers[item.name].prestige !== undefined) && (globalPlayers[item.name].prestige.level !== undefined)) {00
+                        if (globalPlayers[item.name].prestige.level < item.prestige.level) {
+                            //prestigeLevelUp(item);
+                        }
+                    }
+                }
+                globalPlayers[item.name] = globalTempArray[key];
+            });
             currentUserRequest = 0;
         }
     }
