@@ -245,7 +245,7 @@ function socketResponse(event) {
             Object.keys(globalTempArray).forEach(function (key) {
                 var item = globalTempArray[key];
                 if (globalPlayers[item.name] !== undefined) {
-                    if ((globalPlayers[item.name].prestige !== undefined) && (globalPlayers[item.name].prestige.level !== undefined)) {00
+                    if ((globalPlayers[item.name].prestige !== undefined) && (globalPlayers[item.name].prestige.level !== undefined)) {
                         if (globalPlayers[item.name].prestige.level < item.prestige.level) {
                             //prestigeLevelUp(item);
                         }
