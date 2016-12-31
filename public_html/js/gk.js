@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 
+let firstLoad = false;
+
 let jsonFile;
 let nameLength;
 let maxPlayersPerPageGlobal;
@@ -29,6 +31,7 @@ let currentUserRequest = 0;
 let totalUsers;
 let globalTempArray = [];
 let lock = 0;
+let update = false;
 
 function sortPrestige(a, b) {
     if (a.prestige.level > b.prestige.level) { return -1; }
@@ -50,7 +53,7 @@ function updateDisplayNow() {
 function addToOverlay(overlayId) {
     let overlay = $('.racerOverlay' + overlayId);
     while ((newPlayerQueue[overlayId].length > 0) && (overlay.children().length < 2)) {
-        overlay.append('<div class="newPlayerPopup"><span><img src="' + newPlayerQueue[overlayId][0].racer.image + '">' + newPlayerQueue[overlayId][0].name + '</span></div>');
+        overlay.append('<div class="newPlayerPopup"><span><img class="newPlayerImage" src="' + newPlayerQueue[overlayId][0].racer.image + '">' + newPlayerQueue[overlayId][0].name + '</span></div>');
         let el = overlay.children().last();
         el.fadeIn();
         newPlayerQueue[overlayId].shift();
@@ -93,12 +96,15 @@ function updateDisplay(fadeArg = undefined) {
     let playerArray = [];
     let leaderBoard = $('.leaderboardHeader');
     let global = (lock == 2) || ((lock != 1) && (displayGlobal));
+    if (players.length < 1) {
+        global = true;
+    }
     let maxPlayersPerPage;
     let maxPlayersTotal;
     if (global) {
         maxPlayersPerPage = maxPlayersPerPageGlobal
         maxPlayersTotal = maxPlayersTotalGlobal;
-        if (leaderBoard.text() == 'Current Players') {
+        if ((leaderBoard.text() == 'Current Players') || leaderBoard.text() == '') {
             leaderBoard.fadeOut(function() { $(this).finish().text('Global Leaders'); });
         }
         Object.keys(globalPlayers).forEach(function (key) {
@@ -114,7 +120,7 @@ function updateDisplay(fadeArg = undefined) {
     else {
         maxPlayersPerPage = maxPlayersPerPageCurrent;
         maxPlayersTotal = maxPlayersTotalCurrent;
-        if (leaderBoard.text() == 'Global Leaders') {
+        if ((leaderBoard.text() == 'Global Leaders') || leaderBoard.text() == '') {
             leaderBoard.fadeOut(function() { $(this).text('Current Players'); });
         }
         Object.keys(players).forEach(function (key) {
@@ -175,6 +181,7 @@ function updateDisplay(fadeArg = undefined) {
 function updatePlayers(initial = false) {
     $.get(jsonFile, function (data) {
         try {
+            if (data.lenth < 2) { data = "[]"; }
             let keysData = JSON.parse(data.slice(0, -1) + "]");
             for (let i = 0; i < keysData.length; i++) {
                 let player = {
@@ -190,6 +197,8 @@ function updatePlayers(initial = false) {
                 }
                 players[keysData[i].name] = player;
             }
+            totalKeys = Object.keys(players).length * keysPerEntry;
+            $("#stats2").html(getPayout());
             if (initial) {
                 updateDisplay();
                 updateOverlays();
@@ -198,7 +207,7 @@ function updatePlayers(initial = false) {
         }
         catch(e) { }
     }).always(function() {
-        if ($('#readFile').is(':checked')) {
+        if (update) {
             document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
         }
     });
@@ -254,6 +263,10 @@ function socketResponse(event) {
                 globalPlayers[item.name] = globalTempArray[key];
             });
             currentUserRequest = 0;
+            if (firstLoad == false) {
+                firstLoad=true;
+                updateDisplay(true);
+            }
         }
     }
 }
@@ -285,6 +298,11 @@ function loadConfig() {
     globalUpdateSpeed = configData.globalUpdateSpeed;
     usersToIgnore = configData.usersToIgnore;
     newPlayerPopupTime = configData.newPlayerPopupTime;
+    keysPerEntry = configData.keysPerEntry;
+    MAXSECONDS = configData.timeLimitMinutes * 60;
+    firstPercent = configData.firstPercent;
+    secondPercent = configData.secondPercent;
+    thirdPercent = configData.thirdPercent;
 
     $.each(configData.racers, function(i, item) {
       racers.push({"name": item.displayName, "image": item.image});
@@ -305,9 +323,9 @@ function loadConfig() {
           });
       }
     });
-    $('.filterButtons').append('<div class="showAllButtons"><div class="showAllButton button dim clicked" id="topButton">Top</div><div class="showAllButton button dim" id="allButton">All</div></div>');
+    $('.filterButtons').append('<div class="showAllButtons"><div class="showAllButton button dim clicked" id="topButton"><span class="underline">T</span>op</div><div class="showAllButton button dim" id="allButton"><span class="underline">A</span>ll</div></div>');
     $('#topButton').click(function() {
-        if ($(this).css('filter') != 'grayscale(1)') {
+        if ($(this).hasClass('disabled') == false) {
         $(this).addClass('clicked');
         $('#allButton').removeClass('clicked');
         showAll = false;
@@ -315,7 +333,7 @@ function loadConfig() {
     }
     });
     $('#allButton').click(function() {
-        if ($(this).css('filter') != 'grayscale(1)') {
+        if ($(this).hasClass('disabled') == false) {
             $(this).addClass('clicked');
             $('#topButton').removeClass('clicked');
             showAll = true;
@@ -332,23 +350,63 @@ function loadConfig() {
     apiSocket.onmessage = socketResponse;
 
 
-    updatePlayers(true);
+    //updatePlayers(true);
     document.updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
     document.updateOverlaysTimer = setInterval(updateOverlays, 3000);
     document.updateGlobalTimer = setInterval(updateGlobal, globalUpdateSpeed * 1000);
   });
 }
 
+function hideBoard() {
+    let l = $('.leaderboardDiv');
+    if ((l.queue().length == 0) && (l.is(':visible'))) {
+        $('#dropdownStats').finish().animate({width: '1849px'},1000);
+        $('#stats2, #stats3').finish().animate({left: '1320px'},1000);
+        $('#levelResult').finish().animate({width: '1478px'},1000);
+        $('#trackImg').finish().animate({width: '1478px'},1000);
+        $('#timer').finish().animate({left: '1720px'},1000);
+        l.animate({left: '550px'}, 1000, function () {
+            $(this).hide();
+            $('#hideBoardButton').addClass('clicked');
+            $('#showBoardButton').removeClass('clicked');
+            MOVEFACTOR = 1048 / MAXSECONDS;
+            let left = Math.ceil(MOVEFACTOR * (MAXSECONDS - time));
+            CHARSDIV.css("transform", "TranslateX(" + left + "px)");
+        });
+    }
+}
+function showBoard() {
+    let l = $('.leaderboardDiv');
+    if ((l.queue().length == 0) && (!l.is(':visible'))) {
+        $('#dropdownStats').finish().animate({width: '1429px'},1000);
+        $('#stats2, #stats3').finish().animate({left: '900px'},1000);
+        $('#levelResult').finish().animate({width: '1000px'},1000);
+        $('#trackImg').finish().animate({width: '996px'},1000);
+        $('#timer').finish().animate({left: '1240px'},1000);
+        l.show().animate({left: '0px'}, 1000, function() {
+            $('#showBoardButton').addClass('clicked');
+            $('#hideBoardButton').removeClass('clicked');
+            MOVEFACTOR = 575 / MAXSECONDS;
+            let left = Math.ceil(MOVEFACTOR * (MAXSECONDS - time));
+            CHARSDIV.css("transform", "TranslateX(" + left + "px)");
+        });
+    }
+}
+
 $(document).ready(function () {
+    $("#show").click(showTrack);
+    $("#hide").click(hideTrack);
+    $("#start").click(startTimer);
+    $("#stop").click(stopTimer);
+    $("#finish").click(endNow);
+    $("#undo").click(undo);
+    $("#win").click(winLevel);
+    $("#skip").click(skipLevel);
+    $("#stats").click(toggleStats);
+    CHARSDIV = $("#characters");
+    TIMEDIV = $("#timer");
+    LEVELDIV = $("#completed");
     loadConfig();
-    $('#readFile').change(function() {
-        if (this.checked) {
-            document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
-        }
-        else {
-            clearInterval(document.updatePlayersTimeout);
-        }
-    });
     $('#lockCurrentButton').click(function() {
         $('#lockGlobalButton').removeClass('clicked');
         if ($(this).hasClass('clicked')) {
@@ -360,7 +418,7 @@ $(document).ready(function () {
             $(this).addClass('clicked');
             clearInterval(document.updateDisplayTimer);
         }
-        $('#topButton, #allButton').css('filter', 'grayscale(0)');
+        $('#topButton, #allButton').removeClass('disabled');
         updateDisplayNow();
     });
     $('#lockGlobalButton').click(function() {
@@ -368,18 +426,41 @@ $(document).ready(function () {
         if ($(this).hasClass('clicked')) {
             lock = 0;
             $(this).removeClass('clicked');
-            $('#topButton, #allButton').css('filter', 'grayscale(0)');
+            $('#topButton, #allButton').removeClass('disabled');
         }
         else {
             lock = 2;
             $(this).addClass('clicked');
-            $('#topButton, #allButton').css('filter', 'grayscale(1)');
+            $('#topButton, #allButton').addClass('disabled');
         }
         updateDisplayNow();
     });
 
+    $('#showBoardButton').click(function() {
+        showBoard();
+    });
+    $('#hideBoardButton').click(function() {
+        hideBoard();
+    });
+
     $(document).keydown(function(e) {
-        //if (e.ctrlKey) {
+        /*
+         T = show only Top entries on leaderboard
+         A = show All entries on leaderboard
+         C = lock to Current leaderboard
+         G = lock to Global leaderboard
+         1-6 = show only racer #X on leaderboard
+
+         R = fade in/Restart
+         O = fade Out
+         S = Start
+         P = Pause
+         E = End now
+         W = Win level
+         K = sKip level
+         U = Undo level completion
+         L = toggLe stats screen
+         */
             if ((e.keyCode >= 48) && (e.keyCode <= 57)) {
                 let n = e.keyCode - 48;
                 $(".filterButtons > img:nth-child(" + n + ")").trigger('click');
@@ -397,14 +478,487 @@ $(document).ready(function () {
                 $('#lockGlobalButton').trigger('click');
                 return false;
             }
+                if (e.keyCode == 72) {
+                    $('#showBoardButton').trigger('click');
+                    return false;
+                }
+                if (e.keyCode == 73) {
+                    $('#hideBoardButton').trigger('click');
+                    return false;
+                }
             if (e.keyCode == 84) {
                 $('#topButton').trigger('click');
                 return false;
             }
-            if (e.keyCode == 85) {
-                $('#readFile').trigger('click');
-                return false;
-            }
-        //}
+        let b;
+        if (e.keyCode == 82) {
+            b = $('#show');
+        }
+        if (e.keyCode == 79) {
+            b = $('#hide');
+        }
+        if (e.keyCode == 83) {
+            b = $('#start');
+        }
+        if (e.keyCode == 80) {
+            b = $('#stop');
+        }
+        if (e.keyCode == 69) {
+            b = $('#finish');
+        }
+        if (e.keyCode == 87) {
+            b = $('#win');
+        }
+        if (e.keyCode == 75) {
+            b = $('#skip');
+        }
+        if (e.keyCode == 85) {
+            b = $('#undo');
+        }
+        if (e.keyCode == 76) {
+            b = $('#stats');
+        }
+        if ((b !== undefined) && (b.hasClass('disabled') == false)) {
+            b.trigger('click');
+            return false;
+        }
     });
 });
+
+
+
+
+let MAXSECONDS;
+
+let MOVEFACTOR;
+let CHARSDIV;
+let TIMEDIV;
+let LEVELDIV;
+let DIVS = [];
+
+let levelHistory = [];
+let running = false;
+let interval;
+let time = 0;
+
+let audioLosses = [];
+let audioWins = [];
+
+let _racers = [];
+let totalKeys = 0;
+
+let firstPercent = 0;
+let secondPercent = 0;
+let thirdPercent = 0;
+
+let statsTime;
+let dropdownTimer;
+let levelResultTimer;
+let levelStatsInterval;
+let levelStatsTimeout;
+let levelStatsUp = false;
+
+let startAudio;
+let finishAudio;
+let timerAudio;
+let timerAmount;
+
+function getWins() {
+    let count = 0;
+    for (let i = 0; i < levelHistory.length; i++) {
+        if (levelHistory[i].won == true) {
+            count += 1;
+        }
+    }
+    return count;
+}
+
+
+function updateTime() {
+    if (!running)
+        return;
+    let left = Math.ceil(MOVEFACTOR * (MAXSECONDS - time));
+
+    CHARSDIV.css("transform", "TranslateX(" + left + "px)");
+    time -= 1;
+    TIMEDIV.text(getFormatTime(time));
+    if (time < 1 ) {
+        clearInterval(interval);
+        if (finishAudio !== undefined) {
+            finishAudio.play();
+        }
+        function doFlash(i) {
+            TIMEDIV.css("color", (i % 2 == 0 ? "red" : "yellow"));
+            if (i < 12) {
+                setTimeout(doFlash.bind(this, i + 1), 500);
+            } else {
+                setTimeout(function () {
+                    TIMEDIV.css("color", "white");
+                }, 2000);
+            }
+        }
+        doFlash(0);
+        setTimeout(showResult, 2000);
+    }
+    else if ((time < timerAmount) && (timerAudio !== undefined)) {
+        timerAudio.play();
+    }
+
+}
+
+function getFormatTime(seconds) {
+    let min = Math.floor(seconds / 60);
+    min = min < 10 ? "0" + min : min;
+    let sec = seconds % 60;
+    sec = sec < 10 ? "0" + sec : sec;
+    return min + ":" + sec;
+}
+
+function getPayout() {
+    return 'First place payout: &nbsp;' + Math.floor(totalKeys * firstPercent / 100) + ' keys<br>Second place payout: ' + Math.floor(totalKeys * secondPercent / 100) + ' keys<br>Third place payout: &nbsp;' + Math.floor(totalKeys * thirdPercent / 100) + ' keys</div>';
+}
+
+function getStats() {
+    let currentWins = 0;
+    let fastestTime = Number.MAX_SAFE_INTEGER;
+    let slowestTime = 0;
+    let fastest;
+    let slowest;
+    let levelStats = ""
+    for (let i = 0; i < levelHistory.length; i++) {
+        if (levelHistory[i].won == true) {
+            currentWins += 1;
+            if (levelHistory[i].timeTaken > slowestTime) {
+                slowestTime = levelHistory[i].timeTaken;
+                slowest = i;
+            }
+            if (levelHistory[i].timeTaken < fastestTime) {
+                fastestTime = levelHistory[i].timeTaken;
+                fastest = i;
+            }
+        }
+        levelStats += "Level " + (i + 1);
+        if (levelHistory[i].won) {
+            levelStats += " Completed in " + getFormatTime(levelHistory[i].timeTaken);
+        } else {
+            levelStats += " Failed in " + getFormatTime(levelHistory[i].timeTaken);
+        }
+        levelStats += "<br>";
+    }
+    let stats = "";
+    stats = '<div id="stats1">Current record: ' + currentWins + "-" + (levelHistory.length - currentWins);
+    stats = stats + '<div id="levelStatsContainer"><div id="levelStats">' + levelStats;
+    stats = stats + '</div></div>';
+    stats = stats + '</div>';
+    stats = stats + '<div id="stats2"">'
+    stats = stats + getPayout();
+    stats = stats + '</div>';
+    stats = stats + '<div id="stats3">';
+    if (fastest !== undefined) {
+        stats = stats + 'Fastest: &nbsp;Level ' + (fastest + 1) + ' - ' + getFormatTime(fastestTime);
+    }
+    if (slowest !== undefined) {
+        stats = stats + '<br>Slowest: Level ' + (slowest + 1) + ' - ' + getFormatTime(slowestTime);
+    }
+    stats = stats + '</div>';
+    return stats;
+}
+
+function showResult() {
+    let currentWins = getWins();
+
+    let p1, p2, p3;
+    if (currentWins == 0) {
+        p1 = DIVS[DIVS.length - 1].attr("src");
+        p2 = DIVS[DIVS.length - 2].attr("src");
+        p3 = DIVS[DIVS.length - 3].attr("src");
+    } else if (currentWins >= DIVS.length - 1) {
+        p1 = DIVS[0].attr("src");
+        p2 = DIVS[1].attr("src");
+        p3 = DIVS[2].attr("src");
+    } else {
+        p1 = DIVS[(DIVS.length - currentWins - 1)].attr("src");
+        p2 = DIVS[(DIVS.length - currentWins)].attr("src");
+        p3 = DIVS[(DIVS.length - currentWins - 2)].attr("src");
+    }
+    $("#score1").css("background-image", "url(" + p1 + ")");
+    $("#score2").css("background-image", "url(" + p2 + ")");
+    $("#score3").css("background-image", "url(" + p3 + ")");
+    let result = $("#result");
+    result.css("height", "220px");
+    result.animate({opacity: 1}, 800, "linear").delay(4000).animate({opacity: 0}, 800, "linear");
+}
+
+function setPositions() {
+    let place = getWins();
+    if (place >= DIVS.length - 1) {
+        place = DIVS.length - 1;
+    }
+    if (place < DIVS.length) {
+        tempDisableButtons();
+        DIVS[(DIVS.length - place + 1) % DIVS.length].css("z-index", "1");
+        setTimeout(function () {
+            DIVS[(DIVS.length - place + 1) % DIVS.length].css("z-index", "2");
+        }, 2200);
+        if (place != DIVS.length - 1) {
+            for (let i = 0; i < DIVS.length; i++) {
+                let pos = (place + i) % DIVS.length;
+                if (pos > 0 && pos < DIVS.length - 1 && place != 0) {
+                    DIVS[i].animate({left: ((pos - 1)
+                    % DIVS.length) * 50 + "px"}, 2000, "linear");
+                } else if (place != 0) {
+                    DIVS[i].animate({left: (((DIVS.length - 1) * 50) + (pos % (DIVS.length - 2) - 1) * 50) + "px"}, 2000, "linear");
+                } else {
+                    DIVS[i].animate({left: ((pos)
+                    % DIVS.length) * 50 + "px"}, 2000, "linear");
+                }
+            }
+        } else {
+            for (let i = 0; i < DIVS.length; i++) {
+                let pos = (place + i) % DIVS.length;
+                if (pos > 1 && pos < DIVS.length - 1) {
+                    DIVS[i].animate({left: ((pos - 2)
+                    % DIVS.length) * 50 + "px"}, 2000, "linear");
+                } else if (pos == DIVS.length - 1) {
+                    DIVS[i].animate({left: ((DIVS.length - 1) * 50) + "px"}, 2000, "linear");
+                } else {
+                    DIVS[i].animate({left: (((DIVS.length - 1) * 50) - (pos + 1) * 50) + "px"}, 2000, "linear");
+                }
+            }
+        }
+    }
+}
+
+function showRacers() {
+    let place = getWins();
+    if (place > 0 && place < DIVS.length) {
+        let p2 = DIVS[(DIVS.length - place) % DIVS.length].attr("src");
+        let p1 = DIVS[(DIVS.length - place - 1) % DIVS.length].attr("src");
+        let R1 = $("#R1");
+        let R2 = $("#R2");
+        let R1p = R1.parent();
+        let R2p = R2.parent();
+        let race = $("#race");
+        R1.css("background-image", "url(" + p1 + ")");
+        R2.css("background-image", "url(" + p2 + ")");
+        race.css("height", "230px");
+        race.animate({opacity: 1}, 900, function () {
+            R1p.animate({left: "+=800px"}, 2500);
+            R2p.animate({left: "-=1200px"}, 2500,
+                function () {
+                    race.animate({opacity: 0}, 600, "linear",
+                        function () {
+                            R1p.css("left", "-=800px");
+                            R2p.css("left", "+=1200px");
+                            race.css("height", "0px");
+                        });
+                });
+
+
+
+        });
+    }
+}
+
+function playAudio() {;
+    let currentWins = getWins();
+    if (currentWins <= audioWins.length) {
+        var a = audioLosses[currentWins - 1];
+        $(a).off().on('ended', function () {
+            audioWins[currentWins - 1].play();
+        });
+        a.play();
+    }
+}
+
+function tempDisableButtons() {
+    $(".topButton:not(#stats)").addClass('disabled');
+    setTimeout(function () {
+        $(".topButton").removeClass('disabled');
+    }, 2000);
+}
+
+function handleLevel(won) {
+    let timepassed = MAXSECONDS - time;
+    let currentTime = timepassed - (levelHistory.length > 0 ? levelHistory[levelHistory.length - 1].endTime : 0);
+    let level = {"endTime": timepassed, "timeTaken": currentTime, "won": won };
+    levelHistory.push(level);
+    $("#levelResult > span").html("Level " + levelHistory.length + (won ? " completed in " : " skipped after ") + getFormatTime(currentTime) + "!");
+    $("#levelResult").slideDown('slow')
+    clearTimeout(levelResultTimer);
+    levelResultTimer = setTimeout(function() { $("#levelResult").slideUp('slow'); }, 8800);
+}
+
+function load(callback) {
+    $.getJSON("resources/config.json", function (configData) {
+        let keysPerEntry = 0;
+        keysPerEntry = configData.keysPerEntry;
+        MAXSECONDS = configData.timeLimitMinutes * 60;
+        startAudio = ((configData.startAudio !== undefined) && (configData.startAudio.length > 0)) ? new Audio(configData.startAudio) : undefined;
+        finishAudio = ((configData.finishAudio !== undefined) && (configData.finishAudio.length > 0)) ? new Audio(configData.finishAudio) : undefined;
+        timerAudio = ((configData.timerAudio !== undefined) && (configData.timerAudio.length > 0)) ? new Audio(configData.timerAudio) : undefined;
+        timerAmount = configData.timerAmount;
+        firstPercent = configData.firstPercent;
+        secondPercent = configData.secondPercent;
+        thirdPercent = configData.thirdPercent;
+        statsTime = configData.statsTime;
+        _racers = [];
+        audioLosses = [];
+        audioWins = [];
+        DIVS = [];
+        $('#characters').empty();
+        $.each(configData.racers, function (i, item) {
+            _racers.push({"name": item.displayName, "image": item.image, "count": 0});
+            $('#characters').append('<img id="' + i + '" class="character" src="' + item.trackImage + '" alt="' + item.displayName + '">');
+            DIVS.unshift($('#characters #' + i));
+            if (item.audioLoss !== undefined) { audioLosses.push(new Audio(item.audioLoss)); }
+            if (item.audioWin !== undefined) { audioWins.push(new Audio(item.audioWin)); }
+        });
+        totalKeys = Object.keys(players).length * keysPerEntry;
+        $("#stats2").html(getPayout());
+
+        MOVEFACTOR = ($('#leaderboard').is(':visible') ? 575 : 1048) / MAXSECONDS;
+
+        time = MAXSECONDS;
+        callback();
+    });
+}
+
+function showTrack() {
+    tempDisableButtons();
+    //if (time == 0) {
+    players = [];
+    updatePlayers(true);
+    resetTrack();
+    //}
+    $("#fulltrack").animate({opacity: 1.0}, 800, "linear", function () {
+        CHARSDIV.animate({opacity: 1.0}, 800, "linear");
+    });
+}
+
+
+function hideTrack() {
+    tempDisableButtons();
+    CHARSDIV.animate({opacity: 0}, 800, "linear", function () {
+        $("#fulltrack").animate({opacity: 0}, 800, "linear");
+    });
+}
+
+function resetTrack() {
+    stopTimer();
+    load(function() {
+        update = true;
+        document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
+        time = MAXSECONDS;
+        TIMEDIV.text(getFormatTime(time));
+        CHARSDIV.css("transform", "TranslateX(0px)");
+        levelHistory = [];
+        LEVELDIV.text("levels: " + 0);
+        setPositions();
+    });
+}
+
+function winLevel() {
+    if ((time > 0) && (time < MAXSECONDS)) {
+        tempDisableButtons();
+        handleLevel(true);
+        $("#dropdownStats").html(getStats());
+        let currentWins = getWins();
+        LEVELDIV.text("levels: " + currentWins);
+        if (currentWins < DIVS.length) {
+            showRacers();
+            setTimeout(setPositions, 2000);
+        }
+        playAudio();
+        startTimer();
+    }
+}
+
+function skipLevel() {
+    if ((time > 0) && (time < MAXSECONDS)) {
+        tempDisableButtons();
+        handleLevel(false);
+        $("#dropdownStats").html(getStats());
+        startTimer();
+    }
+}
+
+function undo() {
+    if (levelHistory.length > 0) {
+        levelHistory.pop();
+    }
+    LEVELDIV.text("levels: " + getWins());
+    $("#dropdownStats").html(getStats());
+    setPositions();
+}
+
+
+function endNow() {
+    if ((time > 0) && (time < MAXSECONDS)) {
+        clearInterval(interval);
+        time = 1;
+        updateTime();
+    }
+}
+
+function startTimer() {
+    if ((!running) && ($('#fulltrack').css('opacity') > 0)) {
+        update = false;
+        tempDisableButtons();
+        running = true;
+        interval = setInterval(updateTime, 1000);
+        if ((time == MAXSECONDS) && (startAudio !== undefined)) {
+            startAudio.play();
+        }
+    }
+}
+
+function stopTimer() {
+    if (running) {
+        tempDisableButtons();
+        running = false;
+        clearInterval(interval);
+    }
+}
+
+function scrollLevelStats() {
+    let ls = $("#levelStats");
+    let dds = $("#dropdownStats");
+    let top = ls.css('top').slice(0, -2);
+    if (levelStatsUp == false) {
+        if ((-1 * top) + (dds.height() - 80) < ls.height()) {
+            return ls.css("top", top - 2);
+        }
+    }
+    else {
+        if (top < 0) {
+            return ls.css("top", parseInt(top) + 2);
+        }
+    }
+    clearInterval(levelStatsInterval);
+    levelStatsUp = !levelStatsUp;
+    levelStatsTimeout = setTimeout(function () {
+        levelStatsInterval = setInterval(scrollLevelStats, 100);
+    }, 3000);
+}
+function toggleStats() {
+    let dds = $("#dropdownStats");
+    if (dds.is(":visible")) {
+        dds.finish().slideUp('slow');
+        clearInterval(levelStatsInterval);
+        clearTimeout(levelStatsTimeout);
+    }
+    else {
+        dds.html(getStats());
+        dds.slideDown('slow').queue(function() {
+            let ls = $("#levelStats");
+            if (ls.height() > (dds.height() - 80)) {
+                levelStatsUp = false;
+                clearInterval(levelStatsInterval);
+                levelStatsTimeout = setTimeout(function() {
+                    levelStatsInterval = setInterval(scrollLevelStats,100);
+                },2000)
+            }
+        });
+    }
+}

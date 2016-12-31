@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>GrandyKart Leaderboard</title>
+        <script type="text/javascript" src="js/jquery.min.js"></script>
+        <script type="text/javascript" src="js/gk.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/gk.css"/>
+    </head>
+    <body>
+    <div class="topButton button" id="show">&nbsp;Fade In/<span class="underline">R</span>estart&nbsp;</div>
+    <div class="topButton" id="hide">&nbsp;Fade <span class="underline">O</span>ut&nbsp;</div>
+    <div class="topButton" id="start">&nbsp;<span class="underline">S</span>tart&nbsp;</div>
+    <div class="topButton" id="stop">&nbsp;<span class="underline">P</span>ause&nbsp;</div>
+    <div class="topButton" id="finish">&nbsp;<span class="underline">E</span>nd Now&nbsp;</div>
+    <div class="topButton" id="win">&nbsp;<span class="underline">W</span>in Level&nbsp;</div>
+    <div class="topButton" id="skip">&nbsp;S<span class="underline">k</span>ip Level&nbsp;</div>
+    <div class="topButton" id="undo">&nbsp;<span class="underline">U</span>ndo&nbsp;</div>
+    <div class="topButton" id="stats">&nbsp;Togg<span class="underline">l</span>e Stats&nbsp;</div>
+
+    <div class="racerOverlay racerOverlay1"></div>
+    <div class="racerOverlay racerOverlay2"></div>
+    <div class="racerOverlay racerOverlay3"></div>
+    <div class="racerOverlay racerOverlay4"></div>
+    <div class="racerOverlay racerOverlay5"></div>
+    <div class="racerOverlay racerOverlay6"></div>
+
+    <div id="fulltrack">
+        <div id="completed">levels: 0</div>
+        <img id="trackImg" src="images/Minimap_short.png"/>
+        <div id="timer">45:00</div>
+        <div id="characters">
+        </div>
+        <div id="dropdownStats">
+            <div id="levelHistory"></div>
+        </div>
+        <div id="levelResult"><span></span></div>
+        <div id="race">
+            <div class="racer">
+                <img src="images/Kart.gif"/>
+                <div id="R1"></div>
+            </div>
+            <div class="racer">
+                <img src="images/Kart.gif"/>
+                <div id="R2"></div>
+            </div>
+        </div>
+
+        <div id="result">
+            <img src="images/scoreb.png"/>
+            <div id="score">
+                <div id="score1"></div>
+                <div id="score2"></div>
+                <div id="score3"></div>
+            </div>
+        </div>
+    </div>
+    <div class="controls">
+        <div class="button" id="filterButton">Filters</div>
+        <div class="filterButtons"></div>
+        <br>
+        <div class="button" id="optionsButton">Options</div>
+        <div class="optionsButtons">
+            <div class="lockBoardButtons">
+                <div class="lockBoardButton button dim" id="lockCurrentButton"><span class="underline">C</span>urrent</div>
+                <div class="lockBoardButton button dim" id="lockGlobalButton"><span class="underline">G</span>lobal</div>
+            </div>
+            <div class="hideBoardButtons">
+                <div class="lockBoardButton button dim clicked" id="showBoardButton">S<span class="underline">h</span>ow</div>
+                <div class="lockBoardButton button dim" id="hideBoardButton">H<span class="underline">i</span>de</div>
+            </div>
+        </div>
+    </div>
+    <div class="leaderboard">
+        <div class="leaderboardDiv">
+        <div class="leaderboardHeader"></div>
+        <div id="racersDiv">&nbsp;</div>
+    </div>
+    </div>
+    </body>
+</html>
