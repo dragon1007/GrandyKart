@@ -51,6 +51,9 @@ function updateDisplayNow() {
 }
 
 function addToOverlay(overlayId) {
+    if (!$('.leaderboardDiv').is(':visible')) {
+        return false;
+    }
     let overlay = $('.racerOverlay' + overlayId);
     while ((newPlayerQueue[overlayId].length > 0) && (overlay.children().length < 2)) {
         overlay.append('<div class="newPlayerPopup"><span><img class="newPlayerImage" src="' + newPlayerQueue[overlayId][0].racer.image + '">' + newPlayerQueue[overlayId][0].name + '</span></div>');
@@ -180,33 +183,35 @@ function updateDisplay(fadeArg = undefined) {
 
 function updatePlayers(initial = false) {
     $.get(jsonFile, function (data) {
-        try {
-            data = data.trim();
-            if (data.lenth < 2) { data = "[]"; }
-            let keysData = JSON.parse(data.slice(0, -1) + "]");
-            for (let i = 0; i < keysData.length; i++) {
-                let player = {
-                    "name": keysData[i].name,
-                    "racer": {
-                        "id": keysData[i].racer,
-                        "name": racers[keysData[i].racer].name,
-                        "image": racers[keysData[i].racer].image
+        if ($('.leaderboardDiv').is(':visible')) {
+            try {
+                data = data.trim();
+                if (data.lenth < 2) { data = "[]"; }
+                let keysData = JSON.parse(data.slice(0, -1) + "]");
+                for (let i = 0; i < keysData.length; i++) {
+                    let player = {
+                        "name": keysData[i].name,
+                        "racer": {
+                            "id": keysData[i].racer,
+                            "name": racers[keysData[i].racer].name,
+                            "image": racers[keysData[i].racer].image
+                        }
+                    };
+                    if (players[keysData[i].name] === undefined) {
+                        newPlayerQueue[keysData[i].racer].push(player);
                     }
-                };
-                if (players[keysData[i].name] === undefined) {
-                    newPlayerQueue[keysData[i].racer].push(player);
+                    players[keysData[i].name] = player;
                 }
-                players[keysData[i].name] = player;
+                totalKeys = Object.keys(players).length * keysPerEntry;
+                $("#stats2").html(getPayout());
+                if (initial) {
+                    updateDisplay();
+                    updateOverlays();
+                    updateGlobal();
+               }
             }
-            totalKeys = Object.keys(players).length * keysPerEntry;
-            $("#stats2").html(getPayout());
-            if (initial) {
-                updateDisplay();
-                updateOverlays();
-                updateGlobal();
-           }
+            catch(e) { }
         }
-        catch(e) { }
     }).always(function() {
         if (update) {
             document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
@@ -366,6 +371,7 @@ function hideBoard() {
         $('#levelResult, #levelResultText').finish().animate({width: '1478px'},1000);
         $('#trackImg').finish().animate({width: '1478px'},1000);
         $('#timer').finish().animate({left: '1720px'},1000);
+        $('.racerOverlay').finish().fadeOut();
         l.animate({left: '550px'}, 1000, function () {
             $(this).hide();
             $('#hideBoardButton').addClass('clicked');
@@ -384,6 +390,7 @@ function showBoard() {
         $('#levelResult, #levelResultText').finish().animate({width: '1000px'},1000);
         $('#trackImg').finish().animate({width: '996px'},1000);
         $('#timer').finish().animate({left: '1240px'},1000);
+        $('.racerOverlay').finish().fadeIn();
         l.show().animate({left: '0px'}, 1000, function() {
             $('#showBoardButton').addClass('clicked');
             $('#hideBoardButton').removeClass('clicked');
@@ -395,6 +402,7 @@ function showBoard() {
 }
 
 $(document).ready(function () {
+    $("#restart").click(restart);
     $("#show").click(showTrack);
     $("#hide").click(hideTrack);
     $("#start").click(startTimer);
@@ -493,6 +501,9 @@ $(document).ready(function () {
             }
         let b;
         if (e.keyCode == 82) {
+            b = $('#restart');
+        }
+        if (e.keyCode == 70) {
             b = $('#show');
         }
         if (e.keyCode == 79) {
@@ -503,9 +514,6 @@ $(document).ready(function () {
         }
         if (e.keyCode == 80) {
             b = $('#stop');
-        }
-        if (e.keyCode == 69) {
-            b = $('#finish');
         }
         if (e.keyCode == 87) {
             b = $('#win');
@@ -818,20 +826,24 @@ function load(callback) {
         totalKeys = Object.keys(players).length * keysPerEntry;
         $("#stats2").html(getPayout());
 
-        MOVEFACTOR = ($('#leaderboard').is(':visible') ? 575 : 1048) / MAXSECONDS;
+        MOVEFACTOR = ($('.leaderboardDiv').is(':visible') ? 575 : 1048) / MAXSECONDS;
 
         time = MAXSECONDS;
         callback();
     });
 }
 
-function showTrack() {
+function reset() {
     tempDisableButtons();
     //if (time == 0) {
     players = [];
     updatePlayers(true);
     resetTrack();
     //}
+}
+
+function showTrack() {
+    tempDisableButtons();
     $("#fulltrack").animate({opacity: 1.0}, 800, "linear", function () {
         CHARSDIV.animate({opacity: 1.0}, 800, "linear");
     });
