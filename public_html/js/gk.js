@@ -181,6 +181,7 @@ function updateDisplay(fadeArg = undefined) {
 function updatePlayers(initial = false) {
     $.get(jsonFile, function (data) {
         try {
+            data = data.trim();
             if (data.lenth < 2) { data = "[]"; }
             let keysData = JSON.parse(data.slice(0, -1) + "]");
             for (let i = 0; i < keysData.length; i++) {
