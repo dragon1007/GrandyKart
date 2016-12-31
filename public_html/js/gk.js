@@ -96,7 +96,7 @@ function updateDisplay(fadeArg = undefined) {
     let playerArray = [];
     let leaderBoard = $('.leaderboardHeader');
     let global = (lock == 2) || ((lock != 1) && (displayGlobal));
-    if (players.length < 1) {
+    if (Object.keys(players).length < 1) {
         global = true;
     }
     let maxPlayersPerPage;
