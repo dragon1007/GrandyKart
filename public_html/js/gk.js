@@ -362,7 +362,7 @@ function hideBoard() {
     if ((l.queue().length == 0) && (l.is(':visible'))) {
         $('#dropdownStats').finish().animate({width: '1849px'},1000);
         $('#stats2, #stats3').finish().animate({left: '1320px'},1000);
-        $('#levelResult').finish().animate({width: '1478px'},1000);
+        $('#levelResult, #levelResultText').finish().animate({width: '1478px'},1000);
         $('#trackImg').finish().animate({width: '1478px'},1000);
         $('#timer').finish().animate({left: '1720px'},1000);
         l.animate({left: '550px'}, 1000, function () {
@@ -380,7 +380,7 @@ function showBoard() {
     if ((l.queue().length == 0) && (!l.is(':visible'))) {
         $('#dropdownStats').finish().animate({width: '1429px'},1000);
         $('#stats2, #stats3').finish().animate({left: '900px'},1000);
-        $('#levelResult').finish().animate({width: '1000px'},1000);
+        $('#levelResult, #levelResultText').finish().animate({width: '1000px'},1000);
         $('#trackImg').finish().animate({width: '996px'},1000);
         $('#timer').finish().animate({left: '1240px'},1000);
         l.show().animate({left: '0px'}, 1000, function() {
@@ -783,10 +783,10 @@ function handleLevel(won) {
     let currentTime = timepassed - (levelHistory.length > 0 ? levelHistory[levelHistory.length - 1].endTime : 0);
     let level = {"endTime": timepassed, "timeTaken": currentTime, "won": won };
     levelHistory.push(level);
-    $("#levelResult > span").html("Level " + levelHistory.length + (won ? " completed in " : " skipped after ") + getFormatTime(currentTime) + "!");
-    $("#levelResult").slideDown('slow')
+    $("#levelResultText").html("Level " + levelHistory.length + (won ? " completed in " : " skipped after ") + getFormatTime(currentTime) + "!");
+    $("#levelResult, #levelResultText").slideDown('slow')
     clearTimeout(levelResultTimer);
-    levelResultTimer = setTimeout(function() { $("#levelResult").slideUp('slow'); }, 8800);
+    levelResultTimer = setTimeout(function() { $("#levelResult, #levelResultText").slideUp('slow'); }, 8800);
 }
 
 function load(callback) {

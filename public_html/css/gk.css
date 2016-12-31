@@ -199,8 +199,6 @@ body {
 #levelResult {
     border-radius: 12px;
     background-color: #19171c;
-    color: #FABE1B;
-    text-align: center;
     font-size: 38px;
     position: absolute;
     top: 165px;
@@ -208,11 +206,17 @@ body {
     width: 1000px;
     height: 56px;
     display: none;
-    font-family: 'Bebas Neue';
 }
-#levelResult span {
-    position: relative;
-    top: 6px;
+#levelResultText {
+    text-align: center;
+    font-family: 'Bebas Neue';
+    position: absolute;
+    top: 171px;
+    left: 200px;
+    width: 1000px;
+    height: 56px;
+    display: none;
+    color: #FABE1B;
 }
 
 #fulltrack {
