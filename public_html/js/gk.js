@@ -833,7 +833,7 @@ function load(callback) {
     });
 }
 
-function reset() {
+function restart() {
     tempDisableButtons();
     //if (time == 0) {
     players = [];
