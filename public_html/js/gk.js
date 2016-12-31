@@ -501,7 +501,9 @@ $(document).ready(function () {
             }
         let b;
         if (e.keyCode == 82) {
-            b = $('#restart');
+            if (time === 0) {
+                b = $('#restart');
+            }
         }
         if (e.keyCode == 70) {
             b = $('#show');
@@ -859,15 +861,18 @@ function hideTrack() {
 
 function resetTrack() {
     stopTimer();
-    load(function() {
-        update = true;
-        document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
-        time = MAXSECONDS;
-        TIMEDIV.text(getFormatTime(time));
-        CHARSDIV.css("transform", "TranslateX(0px)");
-        levelHistory = [];
-        LEVELDIV.text("levels: " + 0);
-        setPositions();
+    CHARSDIV.animate({opacity: 0}, 800, "linear", function () {
+        $("#fulltrack").animate({opacity: 0}, 800, "linear", function() {
+            load(function() {
+            update = true;
+            document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
+            time = MAXSECONDS;
+            TIMEDIV.text(getFormatTime(time));
+            levelHistory = [];
+            LEVELDIV.text("levels: " + 0);
+            CHARSDIV.css("transform", "TranslateX(0px)");
+            setPositions();
+            })});
     });
 }
 
