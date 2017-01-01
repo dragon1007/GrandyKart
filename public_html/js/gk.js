@@ -16,6 +16,7 @@ let updatePlayersSpeed;
 let scrollSpeed;
 let globalUpdateSpeed;
 let newPlayerPopupTime;
+let prestigeNotificationLength;
 let racers = [];
 let prestige = [{"level": 0, "name": "", "image": ""}];
 let currentPage = 0;
@@ -32,6 +33,13 @@ let totalUsers;
 let globalTempArray = [];
 let lock = 0;
 let update = false;
+let prestigeUpQueue = [];
+
+let prestigeNotificationTimer;
+let updatePlayersTimeout;
+let updateDisplayTimer;
+let updateOverlaysTimer;
+let updateGlobalTimer;
 
 function sortPrestige(a, b) {
     if (a.prestige.level > b.prestige.level) { return -1; }
@@ -45,9 +53,9 @@ function sortPrestige(a, b) {
 
 function updateDisplayNow() {
     currentPage = 0;
-    clearInterval(document.updateDisplayTimer);
+    clearInterval(updateDisplayTimer);
     updateDisplay(true);
-    document.updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
+    updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
 }
 
 function addToOverlay(overlayId) {
@@ -214,7 +222,7 @@ function updatePlayers(initial = false) {
         }
     }).always(function() {
         if (update) {
-            document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
+            updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
         }
     });
 }
@@ -223,6 +231,47 @@ function updateGlobal() {
     if ((apiSocket.readyState == 1) && (currentUserRequest == 0)) {
         apiSocket.send('api|get_users_count');
     }
+}
+
+function addPrestigeNotification(player) {
+    let p = $('.prestigeNotifications');
+    let s = '<div class="prestigeNotification">';
+    if (prestige[player.prestige.level].image !== undefined) {
+        s = s + '<img class="prestigeImage" src="' + prestige[player.prestige.level].image + '" alt="' + prestige[player.prestige.level].displayName + '"> ';
+    }
+    s = s + '<span class="playerName">' + player.name + '</span>';
+    s = s + ' leveled up!</div>';
+    p.append(s);
+    $(p.children()[0]).fadeIn();
+    if (prestige[player.prestige.level].audio !== undefined) {
+        prestige[player.prestige.level].audio.play();
+    }
+    if (prestigeNotificationTimer == undefined) {
+        prestigeNotificationTimer = setTimeout(movePrestigeQueue, prestigeNotificationLength * 1000);
+    }
+}
+
+function movePrestigeQueue() {
+    prestigeNotificationTimer = undefined;
+    let c = $('.prestigeNotifications').children();
+    if (c.length > 0) {
+        $(c[0]).fadeOut(function() {
+            $(this).remove();
+            if (prestigeUpQueue.length > 0) {
+                addPrestigeNotification(prestigeUpQueue[0]);
+                prestigeUpQueue.shift();
+            }
+        });
+    }
+}
+
+function prestigeLevelUp(player) {
+    if ($('.prestigeNotifications').children().length == 0) {
+        addPrestigeNotification(player);
+    }
+    else {
+        prestigeUpQueue.push(player);
+    };
 }
 
 function socketResponse(event) {
@@ -262,7 +311,7 @@ function socketResponse(event) {
                 if (globalPlayers[item.name] !== undefined) {
                     if ((globalPlayers[item.name].prestige !== undefined) && (globalPlayers[item.name].prestige.level !== undefined)) {
                         if (globalPlayers[item.name].prestige.level < item.prestige.level) {
-                            //prestigeLevelUp(item);
+                            prestigeLevelUp(item);
                         }
                     }
                 }
@@ -289,6 +338,7 @@ function loadConfig() {
     /** * @property {number} globalUpdateSpeed - how often to poll the API for the global leaderboard stats, in seconds (decimals allowed) */
     /** * @property {string[]} usersToIgnore - users to not include in the Global Leaderboard */
     /** * @property {number} newPlayerPopupTime - how long to display the popup when players enter, in seconds (decimals allowed) */
+    /** * @property {number} prestigeNotificationLength - how long to display the popup when a player upgrades their prestige, in seconds (decimals allowed) */
     /** * @property {string} apiSecret - DeepBot API key */
     /** * @property {{displayName: string, image: string}} racers */
     /** * @property {{displayName: string, image: string}} prestige */
@@ -304,6 +354,7 @@ function loadConfig() {
     globalUpdateSpeed = configData.globalUpdateSpeed;
     usersToIgnore = configData.usersToIgnore;
     newPlayerPopupTime = configData.newPlayerPopupTime;
+    prestigeNotificationLength = configData.prestigeNotificationLength;
     keysPerEntry = configData.keysPerEntry;
     MAXSECONDS = configData.timeLimitMinutes * 60;
     firstPercent = configData.firstPercent;
@@ -348,18 +399,21 @@ function loadConfig() {
     });
 
     $.each(configData.prestige, function(i, item) {
-      prestige.push({"name": item.displayName, "image": item.image});
+        let p = {"name": item.displayName, "image": item.image}
+        if (item.audio !== undefined) {
+            p.audio = new Audio(item.audio);
+        }
+      prestige.push(p);
     });
 
     apiSocket = new WebSocket("ws://localhost:3337");
     apiSocket.onopen = function() {apiSocket.send('api|register|' + configData.apiSecret)};
     apiSocket.onmessage = socketResponse;
 
-
     //updatePlayers(true);
-    document.updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
-    document.updateOverlaysTimer = setInterval(updateOverlays, 3000);
-    document.updateGlobalTimer = setInterval(updateGlobal, globalUpdateSpeed * 1000);
+    updateDisplayTimer = setInterval(updateDisplay, scrollSpeed * 1000);
+    updateOverlaysTimer = setInterval(updateOverlays, 3000);
+    updateGlobalTimer = setInterval(updateGlobal, globalUpdateSpeed * 1000);
   });
 }
 
@@ -425,7 +479,7 @@ $(document).ready(function () {
         else {
             lock = 1;
             $(this).addClass('clicked');
-            clearInterval(document.updateDisplayTimer);
+            clearInterval(updateDisplayTimer);
         }
         $('#topButton, #allButton').removeClass('disabled');
         updateDisplayNow();
@@ -441,6 +495,7 @@ $(document).ready(function () {
             lock = 2;
             $(this).addClass('clicked');
             $('#topButton, #allButton').addClass('disabled');
+            clearInterval(updateDisplayTimer);
         }
         updateDisplayNow();
     });
@@ -865,7 +920,8 @@ function resetTrack() {
         $("#fulltrack").animate({opacity: 0}, 800, "linear", function() {
             load(function() {
             update = true;
-            document.updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
+            newPlayerQueue = [];
+            updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
             time = MAXSECONDS;
             TIMEDIV.text(getFormatTime(time));
             levelHistory = [];

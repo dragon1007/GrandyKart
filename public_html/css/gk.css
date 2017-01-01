@@ -9,7 +9,7 @@ and open the template in the editor.
 */
 
 body {
-    height: 1080px;
+    height: 1200px;
     width: 2436px;
     color: #FABE1B;
     font-family: 'Bebas Neue', sans-serif;
@@ -440,4 +440,21 @@ body {
 
 #levelStats {
     position: relative;
+}
+
+.prestigeNotifications {
+    position: absolute;
+    top: 1030px;
+    left: 50px;
+}
+
+.prestigeNotification {
+    padding-left: 20px;
+    padding-right: 24px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background-color: #19171c;
+    border-radius: 12px;
+    color: #FABE1B;
+    display: none;
 }

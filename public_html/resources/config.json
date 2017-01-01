@@ -10,6 +10,7 @@
   "globalUpdateSpeed": 10,
   "usersToIgnore": ["grandkeys","grandybot"],
   "newPlayerPopupTime": 1.2,
+  "prestigeNotificationLength": 8,
   "apiSecret": "",
   "keysPerEntry": 1000,
   "timeLimitMinutes": 45,
@@ -32,10 +33,10 @@
     { "displayName": "Mario", "image": "images/Mario.png", "trackImage": "images/Mario4.png" }
   ],
   "prestige": [
-    { "displayName": "Mushroom", "image": "images/Mushroom.png" },
-    { "displayName": "Flower", "image": "images/Flower.png" },
-    { "displayName": "Leaf", "image": "images/Leaf.png" },
-    { "displayName": "Feather", "image": "images/Feather.png" },
-    { "displayName": "Star", "image": "images/Star.png" }
+    { "displayName": "Mushroom", "image": "images/Mushroom.png", "audio": "audio/smb_powerup.wav" },
+    { "displayName": "Flower", "image": "images/Flower.png", "audio": "audio/smb_powerup.wav" },
+    { "displayName": "Leaf", "image": "images/Leaf.png", "audio": "audio/smb_powerup.wav" },
+    { "displayName": "Feather", "image": "images/Feather.png", "audio": "audio/smb_powerup.wav" },
+    { "displayName": "Star", "image": "images/Star.png", "audio": "audio/smb_powerup.wav" }
   ]
 }
