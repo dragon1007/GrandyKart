@@ -1,4 +1,4 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -34,12 +34,14 @@ let globalTempArray = [];
 let lock = 0;
 let update = false;
 let prestigeUpQueue = [];
+let winFilterTime;
 
 let prestigeNotificationTimer;
 let updatePlayersTimeout;
 let updateDisplayTimer;
 let updateOverlaysTimer;
 let updateGlobalTimer;
+let winFilterTimer;
 
 function sortPrestige(a, b) {
     if (a.prestige.level > b.prestige.level) { return -1; }
@@ -171,7 +173,7 @@ function updateDisplay(fadeArg = undefined) {
             }
             t = t + '<span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span>';
             if (player.keys !== undefined) {
-                t = t + '<span class="playerDash"> - </span><span class="playerKeys">' + player.keys + '</span></div>';
+                t = t + '<span class="playerDash"> - </span><span class="playerKeys">' + Math.round(player.keys).toLocaleString() + '</span></div>';
             }
             d.append(t);
         }
@@ -360,6 +362,7 @@ function loadConfig() {
     firstPercent = configData.firstPercent;
     secondPercent = configData.secondPercent;
     thirdPercent = configData.thirdPercent;
+    winFilterTime = configData.winFilterTime;
 
     $.each(configData.racers, function(i, item) {
       racers.push({"name": item.displayName, "image": item.image});
@@ -371,9 +374,11 @@ function loadConfig() {
               $('.filter').removeClass('clicked');
               if (racerFilter == i) {
                   racerFilter = -1;
+                  clearTimeout(winFilterTimer);
               }
               else {
                   racerFilter = i;
+                  clearTimeout(winFilterTimer);
                   $(this).addClass('clicked');
               }
               updateDisplayNow();
@@ -426,13 +431,13 @@ function hideBoard() {
         $('#trackImg').finish().animate({width: '1478px'},1000);
         $('#timer').finish().animate({left: '1720px'},1000);
         $('.racerOverlay').finish().fadeOut();
+        MOVEFACTOR = 1048 / MAXSECONDS;
+        let left = Math.ceil(MOVEFACTOR * (MAXSECONDS - time));
+        CHARSDIV.finish().animate({left: left},1000);
         l.animate({left: '550px'}, 1000, function () {
             $(this).hide();
             $('#hideBoardButton').addClass('clicked');
             $('#showBoardButton').removeClass('clicked');
-            MOVEFACTOR = 1048 / MAXSECONDS;
-            let left = Math.ceil(MOVEFACTOR * (MAXSECONDS - time));
-            CHARSDIV.css("transform", "TranslateX(" + left + "px)");
         });
     }
 }
@@ -445,12 +450,13 @@ function showBoard() {
         $('#trackImg').finish().animate({width: '996px'},1000);
         $('#timer').finish().animate({left: '1240px'},1000);
         $('.racerOverlay').finish().fadeIn();
+        MOVEFACTOR = 575 / MAXSECONDS;
+        let left = Math.ceil(MOVEFACTOR * (MAXSECONDS - time));
+        CHARSDIV.finish().animate({left: left},1000);
+        CHARSDIV.finish().animate({left: left},1000);
         l.show().animate({left: '0px'}, 1000, function() {
             $('#showBoardButton').addClass('clicked');
             $('#hideBoardButton').removeClass('clicked');
-            MOVEFACTOR = 575 / MAXSECONDS;
-            let left = Math.ceil(MOVEFACTOR * (MAXSECONDS - time));
-            CHARSDIV.css("transform", "TranslateX(" + left + "px)");
         });
     }
 }
@@ -645,7 +651,7 @@ function updateTime() {
         return;
     let left = Math.ceil(MOVEFACTOR * (MAXSECONDS - time));
 
-    CHARSDIV.css("transform", "TranslateX(" + left + "px)");
+    CHARSDIV.css("left", left);
     time -= 1;
     TIMEDIV.text(getFormatTime(time));
     if (time < 1 ) {
@@ -853,6 +859,11 @@ function handleLevel(won) {
     $("#levelResult, #levelResultText").slideDown('slow')
     clearTimeout(levelResultTimer);
     levelResultTimer = setTimeout(function() { $("#levelResult, #levelResultText").slideUp('slow'); }, 8800);
+    racerFilter = getWins();
+    $('.filter').removeClass('clicked');
+    $($('.filterButtons').children()[racerFilter - 1]).addClass('clicked');
+    clearTimeout(winFilterTimer);
+    winFilterTimer = setTimeout(function() { $('.filter').removeClass('clicked'); racerFilter = -1; }, winFilterTime * 1000);
 }
 
 function load(callback) {
@@ -920,13 +931,15 @@ function resetTrack() {
         $("#fulltrack").animate({opacity: 0}, 800, "linear", function() {
             load(function() {
             update = true;
-            newPlayerQueue = [];
+            for (let i = 0; i < newPlayerQueue.length; i++) {
+                newPlayerQueue[i] = [];
+            }
             updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
             time = MAXSECONDS;
             TIMEDIV.text(getFormatTime(time));
             levelHistory = [];
             LEVELDIV.text("levels: " + 0);
-            CHARSDIV.css("transform", "TranslateX(0px)");
+            CHARSDIV.css("left",0);
             setPositions();
             })});
     });

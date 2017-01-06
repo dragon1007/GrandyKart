@@ -13,6 +13,7 @@
   "prestigeNotificationLength": 8,
   "apiSecret": "",
   "keysPerEntry": 1000,
+  "winFilterTime": 15,
   "timeLimitMinutes": 45,
   "firstPercent": 50,
   "secondPercent": 30,
