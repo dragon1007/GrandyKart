@@ -173,7 +173,7 @@ function updateDisplay(fadeArg = undefined) {
             }
             t = t + '<span class="playerName">' + ((player.name.length > nameLength) ? (player.name.substring(0, nameLength - 2) + '...') : player.name) + '</span>';
             if (player.keys !== undefined) {
-                t = t + '<span class="playerDash"> - </span><span class="playerKeys">' + Math.round(player.keys).toLocaleString() + '</span></div>';
+                t = t + '<span class="playerDash"> - </span><span class="playerKeys">' + Math.floor(player.keys).toLocaleString() + '</span></div>';
             }
             d.append(t);
         }
