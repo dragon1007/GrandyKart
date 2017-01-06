@@ -687,7 +687,7 @@ function getFormatTime(seconds) {
 }
 
 function getPayout() {
-    return 'First place payout: &nbsp;' + Math.floor(totalKeys * firstPercent / 100) + ' keys<br>Second place payout: ' + Math.floor(totalKeys * secondPercent / 100) + ' keys<br>Third place payout: &nbsp;' + Math.floor(totalKeys * thirdPercent / 100) + ' keys</div>';
+    return 'First place payout: &nbsp;' + Math.floor(totalKeys * firstPercent / 100).toLocaleString() + ' keys<br>Second place payout: ' + Math.floor(totalKeys * secondPercent / 100).toLocaleString() + ' keys<br>Third place payout: &nbsp;' + Math.floor(totalKeys * thirdPercent / 100).toLocaleString() + ' keys</div>';
 }
 
 function getStats() {
