@@ -864,6 +864,7 @@ function handleLevel(won) {
     $($('.filterButtons').children()[racerFilter - 1]).addClass('clicked');
     clearTimeout(winFilterTimer);
     winFilterTimer = setTimeout(function() { $('.filter').removeClass('clicked'); racerFilter = -1; }, winFilterTime * 1000);
+    updateDisplayNow();
 }
 
 function load(callback) {
@@ -905,7 +906,6 @@ function restart() {
     tempDisableButtons();
     //if (time == 0) {
     players = [];
-    updatePlayers(true);
     resetTrack();
     //}
 }
@@ -934,8 +934,8 @@ function resetTrack() {
             for (let i = 0; i < newPlayerQueue.length; i++) {
                 newPlayerQueue[i] = [];
             }
-            updatePlayersTimeout = setTimeout(updatePlayers, updatePlayersSpeed * 1000);
             time = MAXSECONDS;
+            updatePlayers(true);
             TIMEDIV.text(getFormatTime(time));
             levelHistory = [];
             LEVELDIV.text("levels: " + 0);
